@@ -1,0 +1,401 @@
+{
+  "title": "Modern Linux CLI Tool Replacements",
+  "description": "A structured dataset of modern command-line tools that serve as improved replacements for traditional Unix/Linux utilities. Each entry maps an old tool to its modern counterpart with metadata for programmatic use.",
+  "last_updated": "2026-03-23",
+  "categories": [
+    {
+      "name": "File & Directory Operations",
+      "tools": [
+        {
+          "modern_tool": "eza",
+          "replaces": ["ls"],
+          "description": "Modern ls replacement with icons, git status, tree view, and color-coded permissions.",
+          "language": "Rust",
+          "install": {
+            "apt": "apt install eza",
+            "pacman": "pacman -S eza",
+            "cargo": "cargo install eza"
+          },
+          "example_usage": "eza -la --icons --git",
+          "key_features": ["icons", "git_status", "tree_view", "color_permissions"],
+          "homepage": "https://github.com/eza-community/eza"
+        },
+        {
+          "modern_tool": "fd",
+          "replaces": ["find"],
+          "description": "Simple, fast, and user-friendly alternative to find. Respects .gitignore and uses regex by default.",
+          "language": "Rust",
+          "install": {
+            "apt": "apt install fd-find",
+            "pacman": "pacman -S fd",
+            "cargo": "cargo install fd-find"
+          },
+          "example_usage": "fd \"\\.rs$\"",
+          "key_features": ["fast", "gitignore_aware", "regex_default", "simple_syntax"],
+          "homepage": "https://github.com/sharkdp/fd"
+        },
+        {
+          "modern_tool": "bat",
+          "replaces": ["cat"],
+          "description": "A cat clone with syntax highlighting, git integration, line numbers, and automatic paging.",
+          "language": "Rust",
+          "install": {
+            "apt": "apt install bat",
+            "pacman": "pacman -S bat",
+            "cargo": "cargo install bat"
+          },
+          "example_usage": "bat config.yaml",
+          "key_features": ["syntax_highlighting", "git_integration", "line_numbers", "paging"],
+          "homepage": "https://github.com/sharkdp/bat"
+        },
+        {
+          "modern_tool": "broot",
+          "replaces": ["tree"],
+          "description": "Interactive tree explorer with fuzzy search and file preview.",
+          "language": "Rust",
+          "install": {
+            "cargo": "cargo install broot"
+          },
+          "example_usage": "broot",
+          "key_features": ["interactive_navigation", "fuzzy_search", "file_preview"],
+          "homepage": "https://github.com/Canop/broot"
+        }
+      ]
+    },
+    {
+      "name": "Search & Text Processing",
+      "tools": [
+        {
+          "modern_tool": "ripgrep",
+          "binary_name": "rg",
+          "replaces": ["grep"],
+          "description": "Extremely fast recursive search tool that respects .gitignore and has sane defaults.",
+          "language": "Rust",
+          "install": {
+            "apt": "apt install ripgrep",
+            "pacman": "pacman -S ripgrep",
+            "cargo": "cargo install ripgrep"
+          },
+          "example_usage": "rg \"TODO\" --type rust",
+          "key_features": ["very_fast", "gitignore_aware", "unicode_support", "regex"],
+          "homepage": "https://github.com/BurntSushi/ripgrep"
+        },
+        {
+          "modern_tool": "jq",
+          "replaces": ["awk", "sed"],
+          "replaces_context": "When processing JSON data",
+          "description": "Lightweight command-line JSON processor for filtering and transforming JSON data.",
+          "language": "C",
+          "install": {
+            "apt": "apt install jq",
+            "pacman": "pacman -S jq"
+          },
+          "example_usage": "curl -s api.example.com | jq '.results[] | .name'",
+          "key_features": ["json_filtering", "json_transformation", "pipeline_friendly"],
+          "homepage": "https://github.com/jqlang/jq"
+        },
+        {
+          "modern_tool": "delta",
+          "replaces": ["diff"],
+          "description": "Syntax-highlighting pager for git, diff, and grep output with side-by-side view.",
+          "language": "Rust",
+          "install": {
+            "cargo": "cargo install git-delta"
+          },
+          "example_usage": "git diff | delta",
+          "key_features": ["syntax_highlighting", "side_by_side", "git_pager", "line_numbers"],
+          "homepage": "https://github.com/dandavison/delta"
+        }
+      ]
+    },
+    {
+      "name": "System Monitoring",
+      "tools": [
+        {
+          "modern_tool": "btop",
+          "replaces": ["top", "htop"],
+          "description": "Resource monitor with a beautiful TUI, mouse support, GPU monitoring, and network/disk graphs.",
+          "language": "C++",
+          "install": {
+            "apt": "apt install btop",
+            "pacman": "pacman -S btop"
+          },
+          "example_usage": "btop",
+          "key_features": ["beautiful_tui", "mouse_support", "gpu_monitoring", "network_graphs", "disk_graphs"],
+          "homepage": "https://github.com/aristocratos/btop"
+        },
+        {
+          "modern_tool": "dust",
+          "replaces": ["du"],
+          "description": "Intuitive disk usage analyzer with visual bar chart output, sorted by size.",
+          "language": "Rust",
+          "install": {
+            "cargo": "cargo install du-dust"
+          },
+          "example_usage": "dust /var/log",
+          "key_features": ["visual_bar_chart", "sorted_output", "fast"],
+          "homepage": "https://github.com/bootandy/dust"
+        },
+        {
+          "modern_tool": "duf",
+          "replaces": ["df"],
+          "description": "Disk usage/free utility with color-coded table output and filesystem type filtering.",
+          "language": "Go",
+          "install": {
+            "apt": "apt install duf",
+            "pacman": "pacman -S duf"
+          },
+          "example_usage": "duf",
+          "key_features": ["color_table", "filesystem_filter", "clean_output"],
+          "homepage": "https://github.com/muesli/duf"
+        },
+        {
+          "modern_tool": "procs",
+          "replaces": ["ps"],
+          "description": "Modern replacement for ps with color output, tree view, and Docker awareness.",
+          "language": "Rust",
+          "install": {
+            "cargo": "cargo install procs"
+          },
+          "example_usage": "procs firefox",
+          "key_features": ["color_output", "tree_view", "docker_support", "keyword_search"],
+          "homepage": "https://github.com/dalance/procs"
+        }
+      ]
+    },
+    {
+      "name": "Navigation & Productivity",
+      "tools": [
+        {
+          "modern_tool": "zoxide",
+          "replaces": ["cd"],
+          "description": "Smarter cd command that learns your directory habits and supports fuzzy matching.",
+          "language": "Rust",
+          "install": {
+            "apt": "apt install zoxide",
+            "pacman": "pacman -S zoxide",
+            "cargo": "cargo install zoxide"
+          },
+          "example_usage": "z proj",
+          "shell_init": "eval \"$(zoxide init bash)\"",
+          "key_features": ["learning_algorithm", "fuzzy_matching", "cross_shell"],
+          "homepage": "https://github.com/ajeetdsouza/zoxide"
+        },
+        {
+          "modern_tool": "fzf",
+          "replaces": ["ctrl+r"],
+          "replaces_context": "Shell history search and general-purpose fuzzy finding",
+          "description": "General-purpose command-line fuzzy finder for history, files, and any piped input.",
+          "language": "Go",
+          "install": {
+            "apt": "apt install fzf",
+            "pacman": "pacman -S fzf"
+          },
+          "example_usage": "vim $(fzf)",
+          "key_features": ["fuzzy_search", "pipeline_integration", "history_search", "file_finder"],
+          "homepage": "https://github.com/junegunn/fzf"
+        },
+        {
+          "modern_tool": "tldr",
+          "replaces": ["man"],
+          "replaces_context": "Quick reference and practical examples, not a full man page replacement",
+          "description": "Community-maintained collection of simplified command cheat sheets with practical examples.",
+          "language": "Various clients available",
+          "install": {
+            "apt": "apt install tldr",
+            "npm": "npm install -g tldr",
+            "pip": "pip install tldr"
+          },
+          "example_usage": "tldr tar",
+          "key_features": ["practical_examples", "community_maintained", "concise"],
+          "homepage": "https://github.com/tldr-pages/tldr"
+        }
+      ]
+    },
+    {
+      "name": "Networking & HTTP",
+      "tools": [
+        {
+          "modern_tool": "httpie",
+          "binary_name": "http",
+          "replaces": ["curl"],
+          "replaces_context": "For API interaction and testing; curl remains better for scripting and edge cases",
+          "description": "User-friendly HTTP client with intuitive syntax, colorized output, and JSON support by default.",
+          "language": "Python",
+          "install": {
+            "apt": "apt install httpie",
+            "pip": "pip install httpie"
+          },
+          "example_usage": "http GET api.example.com/users",
+          "key_features": ["intuitive_syntax", "colorized_output", "json_default", "sessions"],
+          "homepage": "https://github.com/httpie/cli"
+        },
+        {
+          "modern_tool": "gping",
+          "replaces": ["ping"],
+          "description": "Ping with a real-time graph of latency, supports pinging multiple hosts simultaneously.",
+          "language": "Rust",
+          "install": {
+            "cargo": "cargo install gping"
+          },
+          "example_usage": "gping google.com cloudflare.com",
+          "key_features": ["realtime_graph", "multi_host", "visual"],
+          "homepage": "https://github.com/orf/gping"
+        },
+        {
+          "modern_tool": "dog",
+          "replaces": ["dig"],
+          "description": "DNS lookup utility with colorized output and support for DNS over HTTPS and DNS over TLS.",
+          "language": "Rust",
+          "install": {
+            "cargo": "cargo install dog"
+          },
+          "example_usage": "dog example.com A AAAA",
+          "key_features": ["colorized", "doh_support", "dot_support", "clean_output"],
+          "homepage": "https://github.com/ogham/dog"
+        }
+      ]
+    },
+    {
+      "name": "Disk & File Management",
+      "tools": [
+        {
+          "modern_tool": "trash-cli",
+          "replaces": ["rm"],
+          "description": "Command-line interface to the freedesktop.org trashcan. Moves files to trash instead of deleting permanently.",
+          "language": "Python",
+          "install": {
+            "apt": "apt install trash-cli",
+            "pip": "pip install trash-cli"
+          },
+          "example_usage": "trash-put file.txt",
+          "key_features": ["recoverable_deletion", "freedesktop_compliant", "trash_restore"],
+          "homepage": "https://github.com/andreafrancia/trash-cli"
+        },
+        {
+          "modern_tool": "xcp",
+          "replaces": ["cp", "mv"],
+          "description": "Extended cp with progress bars, parallel copying, and reflink support.",
+          "language": "Rust",
+          "install": {
+            "cargo": "cargo install xcp"
+          },
+          "example_usage": "xcp -r source/ destination/",
+          "key_features": ["progress_bars", "parallel_copy", "reflink_support"],
+          "homepage": "https://github.com/tarka/xcp"
+        }
+      ]
+    },
+    {
+      "name": "Git",
+      "tools": [
+        {
+          "modern_tool": "lazygit",
+          "replaces": ["git"],
+          "replaces_context": "Interactive git workflows; not a full replacement for git CLI in scripts",
+          "description": "Full terminal UI for git with visual staging, interactive rebase, and branch management.",
+          "language": "Go",
+          "install": {
+            "apt": "apt install lazygit",
+            "pacman": "pacman -S lazygit"
+          },
+          "example_usage": "lazygit",
+          "key_features": ["tui", "visual_staging", "interactive_rebase", "branch_management"],
+          "homepage": "https://github.com/jesseduffield/lazygit"
+        },
+        {
+          "modern_tool": "difftastic",
+          "binary_name": "difft",
+          "replaces": ["git diff"],
+          "description": "Structural diff tool that understands programming language syntax via AST parsing.",
+          "language": "Rust",
+          "install": {
+            "cargo": "cargo install difftastic"
+          },
+          "example_usage": "GIT_EXTERNAL_DIFF=difft git diff",
+          "key_features": ["ast_aware", "language_syntax", "structural_diff"],
+          "homepage": "https://github.com/Wilfred/difftastic"
+        }
+      ]
+    },
+    {
+      "name": "Shell & Terminal",
+      "tools": [
+        {
+          "modern_tool": "fish",
+          "replaces": ["bash"],
+          "replaces_context": "As an interactive shell; bash remains standard for scripting",
+          "description": "User-friendly shell with out-of-the-box autosuggestions, syntax highlighting, and tab completions.",
+          "language": "C++",
+          "install": {
+            "apt": "apt install fish",
+            "pacman": "pacman -S fish"
+          },
+          "example_usage": "fish",
+          "key_features": ["autosuggestions", "syntax_highlighting", "tab_completions", "zero_config"],
+          "homepage": "https://github.com/fish-shell/fish-shell"
+        },
+        {
+          "modern_tool": "starship",
+          "replaces": ["bash PS1", "oh-my-zsh themes"],
+          "description": "Fast, minimal, and highly customizable cross-shell prompt written in Rust.",
+          "language": "Rust",
+          "install": {
+            "cargo": "cargo install starship",
+            "script": "curl -sS https://starship.rs/install.sh | sh"
+          },
+          "shell_init": "eval \"$(starship init bash)\"",
+          "example_usage": "starship init bash",
+          "key_features": ["fast", "cross_shell", "customizable", "git_info", "language_detection"],
+          "homepage": "https://github.com/starship/starship"
+        },
+        {
+          "modern_tool": "zellij",
+          "replaces": ["tmux", "screen"],
+          "description": "Terminal multiplexer with discoverable UI, on-screen shortcuts, and simpler configuration.",
+          "language": "Rust",
+          "install": {
+            "cargo": "cargo install zellij"
+          },
+          "example_usage": "zellij",
+          "key_features": ["discoverable_ui", "on_screen_shortcuts", "floating_panes", "simple_config"],
+          "homepage": "https://github.com/zellij-org/zellij"
+        }
+      ]
+    }
+  ],
+  "top_recommendations": [
+    {
+      "tool": "ripgrep",
+      "reason": "Code searching becomes instant; used constantly in development workflows."
+    },
+    {
+      "tool": "fzf",
+      "reason": "Universal fuzzy finder for files, history, branches, and any list."
+    },
+    {
+      "tool": "zoxide",
+      "reason": "Eliminates typing long directory paths by learning your habits."
+    },
+    {
+      "tool": "bat",
+      "reason": "Makes reading files pleasant with syntax highlighting and line numbers."
+    },
+    {
+      "tool": "eza",
+      "reason": "ls replacement with git status, icons, and informative output."
+    },
+    {
+      "tool": "btop",
+      "reason": "Beautiful and comprehensive system resource monitor."
+    },
+    {
+      "tool": "lazygit",
+      "reason": "Transforms git workflow with a full visual terminal interface."
+    },
+    {
+      "tool": "delta",
+      "reason": "Set as git pager once and all diffs become readable."
+    }
+  ]
+}
