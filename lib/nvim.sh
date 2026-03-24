@@ -70,18 +70,6 @@ verify_nvim_config() {
         ((errors++))
     fi
 
-    local lua_dir="${target_dir}/lua/user"
-    if [[ ! -d "$lua_dir" ]]; then
-        echo "ERROR: lua/user directory not found"
-        ((errors++))
-    fi
-
-    for plugin in lsp cmp colors; do
-        if [[ ! -d "${lua_dir}/${plugin}" ]]; then
-            echo "WARNING: ${plugin} configuration directory not found"
-        fi
-    done
-
     if [[ $errors -eq 0 ]]; then
         echo "Verification passed!"
         return 0
@@ -93,7 +81,7 @@ verify_nvim_config() {
 
 install_nvim_dependencies() {
     echo "Checking Neovim installation..."
-    if ! command -v nvim &> /dev/null; then
+    if ! command -v nvim &>/dev/null; then
         echo "Neovim not found. Please install it first."
         return 1
     fi
@@ -101,9 +89,7 @@ install_nvim_dependencies() {
     local nvim_version
     nvim_version=$(nvim --version | head -n1)
     echo "Found: $nvim_version"
-
-    echo "Neovim dependencies are managed through the config itself."
-    echo "Run :LazySync after first Neovim launch to install plugins."
+    echo "This is a No Plugins configuration - no additional dependencies needed."
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then

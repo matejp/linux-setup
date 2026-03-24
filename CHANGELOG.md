@@ -5,13 +5,12 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
-- Modern CLI tools (eza, bat, ripgrep, fd, fzf, zoxide, lazygit, btop, tldr, etc.)
-- `--desktop` / `-k` flag for GNOME desktop settings
-- `--font` / `-f` flag for JetBrains Mono Nerd Font installation
-- `lib/desktop.sh` for desktop configuration
-- `lib/fonts.sh` for font installation
 - GitHub Actions workflow for automatic releases (.github/workflows/release.yml)
 - Automatic semantic versioning with git-auto-semver
+
+### Changed
+- Neovim configuration: Updated README to reflect No Plugins edition
+- lib/nvim.sh: Removed plugin-related verification and dependencies
 
 ### Changed
 - Updated README.md to reflect new features and options

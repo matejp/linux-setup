@@ -213,49 +213,90 @@ bash -c '
 
 ## Neovim Configuration
 
-The Neovim configuration includes:
+This is a **No Plugins** Neovim configuration using only built-in features. It provides a clean, fast editing experience without external dependencies.
 
-### Core Plugins
-- **telescope.nvim**: Fuzzy file finder
-- **nvim-treesitter**: Syntax highlighting
-- **nvim-lspconfig**: Language Server Protocol
-- **nvim-cmp**: Auto-completion
-- **mason.nvim**: LSP/DAP installer
-- **lualine.nvim**: Status line
-- **tokyonight.nvim**: Color scheme
-- **nvim-dap**: Debug Adapter Protocol
+### Features
 
-### Language Support
+- **Custom Statusline**: Mode indicator, spell check status, file info, line/column, file type
+- **Syntax Highlighting**: Built-in syntax support
+- **Smart Editing**: Auto-indent, smart tab, spell checking
+- **File Explorer**: Netrw-based file browser
+- **Terminal Integration**: Embedded terminal support
 
-#### Go
-- LSP: gopls
-- Syntax: Treesitter
-- Debugging: nvim-dap (GDB)
-- Extras: gopher.nvim (Go utilities)
+### Settings
 
-#### C/C++
-- LSP: clangd
-- Syntax: Treesitter
-- Debugging: nvim-dap (GDB/LLDB)
-
-#### Python
-- LSP: pyright
-- Syntax: Treesitter
-- Debugging: nvim-dap (Python)
+| Setting | Value |
+|---------|-------|
+| Leader key | Space |
+| Tab size | 4 spaces |
+| Encoding | UTF-8 |
+| Line numbers | Relative |
+| Mouse | Enabled |
 
 ### Keybindings
 
+#### General
 | Key | Action |
 |-----|--------|
-| `<Leader>ff` | Find files |
-| `<Leader>fg` | Live grep |
-| `<Leader>fb` | Find buffers |
-| `<Leader>fh` | Help tags |
-| `<F5>` | Debug: Continue |
-| `<F10>` | Debug: Step over |
-| `<F11>` | Debug: Step into |
-| `<F12>` | Debug: Step out |
-| `<Leader>db` | Toggle breakpoint |
+| `<Esc>` | Clear search highlight |
+| `jj` | Escape insert mode |
+| `Q` | Format paragraph |
+| `<C-s>` | Save file |
+| `<C-q>` | Save and quit |
+
+#### File Explorer
+| Key | Action |
+|-----|--------|
+| `<Leader>e` | Open Netrw (left panel) |
+| `<Leader>o` | Open Netrw |
+
+#### Window Navigation
+| Key | Action |
+|-----|--------|
+| `<C-h>` | Move to left window |
+| `<C-j>` | Move to below window |
+| `<C-k>` | Move to above window |
+| `<C-l>` | Move to right window |
+| `<Leader>y` | Split horizontally |
+| `<Leader>x` | Split vertically |
+
+#### Tab Navigation
+| Key | Action |
+|-----|--------|
+| `<Leader>t` | Next tab |
+| `<Leader>c` | New tab |
+| `<C-t>` | Open terminal in new tab |
+
+#### Text Manipulation
+| Key | Action |
+|-----|--------|
+| `<Leader>a` | Select all |
+| `J` | Move line down (visual) |
+| `K` | Move line up (visual) |
+| `<` | Indent left (visual) |
+| `>` | Indent right (visual) |
+| `x` | Delete character (no register) |
+
+#### Terminal
+| Key | Action |
+|-----|--------|
+| `<C-t>` | Open terminal |
+| `<Esc>` | Exit terminal mode |
+| `<C-q>` | Exit terminal |
+
+#### Special Features
+| Key | Action |
+|-----|--------|
+| `<Leader>ht` | Toggle Hebrew mode (RTL) |
+| `<Leader>hx` | Convert to hex dump |
+| `<Leader>r` | Show registers |
+| `<C-z>` | Toggle spell check |
+
+### Custom Functions
+
+- **ToggleHebrew()**: Switch between LTR and RTL text direction
+- **DoHex()**: Convert buffer to hexadecimal dump
+- **UndoHex()**: Reverse hex dump back to text
 
 ### First Run
 
@@ -265,13 +306,11 @@ After installation, open Neovim:
 nvim
 ```
 
-Lazy.nvim will automatically install all plugins. For LSP servers:
+You should see: `Neovim configured - No Plugins Edition`
 
-```vim
-:Mason
-```
+### GUI Font
 
-Install recommended servers: gopls, clangd, pyright
+When running in GUI mode (gvim/Neovim Qt), the font is automatically set to JetBrains Mono Nerd Font size 12.
 
 ## Project Structure
 
