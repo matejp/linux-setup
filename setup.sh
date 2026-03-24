@@ -13,6 +13,8 @@ INSTALL_DEV=false
 INSTALL_NVIM=false
 INSTALL_FONT=false
 INSTALL_DESKTOP=false
+INSTALL_FISH=false
+INSTALL_BASH=false
 FORCE_DISTRO=""
 
 usage() {
@@ -29,6 +31,8 @@ OPTIONS:
     -n, --nvim              Install Neovim configuration
     -f, --font              Install JetBrains Mono Nerd Font
     -k, --desktop           Apply desktop settings (GNOME)
+    -s, --fish              Install fish shell, set as default, and deploy config
+    -b, --bash              Deploy bash configuration (~/.bashrc and ~/.bash_profile)
     -a, --all               Install everything
     -v, --verbose           Enable verbose output
     -t, --dry-run           Show what would be done without executing
@@ -145,12 +149,22 @@ parse_args() {
                 INSTALL_DESKTOP=true
                 shift
                 ;;
+            -s|--fish)
+                INSTALL_FISH=true
+                shift
+                ;;
+            -b|--bash)
+                INSTALL_BASH=true
+                shift
+                ;;
             -a|--all)
                 INSTALL_BASE=true
                 INSTALL_DEV=true
                 INSTALL_NVIM=true
                 INSTALL_FONT=true
                 INSTALL_DESKTOP=true
+                INSTALL_FISH=true
+                INSTALL_BASH=true
                 shift
                 ;;
             -v|--verbose)
@@ -262,6 +276,20 @@ main() {
         log_info "Applying desktop settings..."
         install_gnome_settings
         log_success "Desktop settings applied"
+    fi
+
+    if [[ "$INSTALL_FISH" == true ]]; then
+        load_library "fish"
+        log_info "Setting up fish shell..."
+        setup_fish
+        log_success "Fish shell setup complete"
+    fi
+
+    if [[ "$INSTALL_BASH" == true ]]; then
+        load_library "bash"
+        log_info "Deploying bash configuration..."
+        setup_bash
+        log_success "Bash configuration deployed"
     fi
 
     log_success "Setup complete!"

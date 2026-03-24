@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# ~/.bash_profile — login shell entry point
+#
+# Login shells read ~/.bash_profile (not ~/.bashrc).
+# Sourcing ~/.bashrc here ensures the same config applies in both
+# login shells (TTY, SSH) and interactive non-login shells (terminal emulators).
+
+# Source ~/.bashrc if it exists
+[[ -f "${HOME}/.bashrc" ]] && source "${HOME}/.bashrc"

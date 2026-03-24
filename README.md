@@ -20,6 +20,8 @@ sudo ./setup.sh --all
 - **Development Tools**: Go, C/C++, and Python development environments
 - **Neovim Configuration**: Ready-to-use IDE setup with LSP, Treesitter, and DAP
 - **Desktop Settings**: GNOME configuration (dash-to-dock, etc.)
+- **Fish Shell**: Install fish, set as default shell, and deploy basic config
+- **Bash Configuration**: Best-practice `~/.bashrc` and `~/.bash_profile` with SSH agent, aliases, and git-aware prompt
 - **Fonts**: JetBrains Mono Nerd Font
 
 ## Supported Distributions
@@ -72,6 +74,29 @@ sudo ./setup.sh --nvim
 ./setup.sh --desktop
 ```
 
+### Install Fish Shell
+
+```bash
+./setup.sh --fish
+```
+
+This will:
+1. Install fish via the system package manager
+2. Add fish to `/etc/shells`
+3. Set fish as the default shell (`chsh`)
+4. Deploy the fish configuration to `~/.config/fish`
+
+### Deploy Bash Configuration
+
+```bash
+./setup.sh --bash
+```
+
+This will:
+1. Back up any existing `~/.bashrc` and `~/.bash_profile`
+2. Deploy `config/bash/bashrc` → `~/.bashrc`
+3. Deploy `config/bash/bash_profile` → `~/.bash_profile`
+
 ### Detect Distribution
 
 ```bash
@@ -122,6 +147,8 @@ sudo ./setup.sh --nvim
 | `-n, --nvim` | Install Neovim configuration |
 | `-f, --font` | Install JetBrains Mono Nerd Font |
 | `-k, --desktop` | Apply desktop settings (GNOME) |
+| `-s, --fish` | Install fish shell and set as default |
+| `-b, --bash` | Deploy bash configuration |
 | `-a, --all` | Install everything |
 | `-v, --verbose` | Enable verbose output |
 | `-t, --dry-run` | Show what would be done without executing |
@@ -324,13 +351,19 @@ When running in GUI mode (gvim/Neovim Qt), the font is automatically set to JetB
 │   ├── packages.sh       # Package management
 │   ├── nvim.sh           # Neovim configuration
 │   ├── fonts.sh          # Font installation
-│   └── desktop.sh        # Desktop settings
+│   ├── desktop.sh        # Desktop settings
+│   ├── fish.sh           # Fish shell setup
+│   └── bash.sh           # Bash configuration deployment
 ├── config/
-│   └── nvim/
-│       ├── init.lua      # Neovim entry point
-│       └── lua/user/
-│           ├── options.lua   # Neovim options
-│           └── plugins.lua   # Plugin configuration
+│   ├── nvim/
+│   │   └── init.lua      # Neovim entry point
+│   ├── fish/
+│   │   ├── config.fish   # Fish shell configuration
+│   │   └── conf.d/
+│   │       └── ssh_agent.fish  # SSH agent (auto-loaded by fish)
+│   └── bash/
+│       ├── bashrc        # Bash interactive shell config
+│       └── bash_profile  # Bash login shell entry point
 ├── tests/
 │   ├── test.sh           # Main test suite
 │   ├── test_distro.sh    # Distro lib tests
@@ -413,6 +446,75 @@ DEV_PACKAGES_YOUR_PM[go]="golang"
 ### Adding New Languages
 
 Edit `config/nvim/lua/user/plugins.lua` to add LSP and Treesitter support.
+
+### lib/desktop.sh
+
+Desktop configuration management.
+
+```bash
+# Apply GNOME settings
+./lib/desktop.sh
+```
+
+### lib/fish.sh
+
+Fish shell installation and configuration.
+
+```bash
+./lib/fish.sh --setup    # Full setup (install + default shell + config)
+./lib/fish.sh --install  # Install fish only
+./lib/fish.sh --default  # Set fish as default shell only
+./lib/fish.sh --config   # Deploy fish config only
+```
+
+### lib/bash.sh
+
+Bash configuration deployment.
+
+```bash
+./lib/bash.sh --setup    # Deploy ~/.bashrc and ~/.bash_profile
+./lib/bash.sh --install  # Same as --setup with optional source dir
+```
+
+## Fish Shell Configuration
+
+The fish configuration (`config/fish/config.fish`) includes:
+
+- Suppressed greeting
+- `$EDITOR` / `$VISUAL` set to `nvim`
+- `~/.local/bin` and `~/bin` added to PATH
+- Aliases for modern CLI tools (eza, bat, fd, rg, btop, zoxide) - only active if the tool is installed
+- General aliases (`..`, `mkdir`, `df`, `du`, `free`)
+- Git aliases (`g`, `gs`, `ga`, `gc`, `gp`, `gl`, `gd`)
+- Safety aliases (`rm -i`, `cp -i`, `mv -i`)
+- Starship prompt integration (if starship is installed)
+
+SSH agent is configured separately in `config/fish/conf.d/ssh_agent.fish` (auto-loaded by fish).
+
+## Bash Configuration
+
+The bash configuration (`config/bash/bashrc`) includes:
+
+- Persistent 10,000 entry history with timestamps, no duplicates, cross-session sync
+- Shell options: `autocd`, `globstar`, `cdspell`, `checkwinsize`
+- `$EDITOR` / `$VISUAL` set to `nvim`
+- `~/.local/bin` and `~/bin` added to PATH
+- Git-aware coloured prompt with exit code indicator
+- Starship prompt integration (if starship is installed, overrides default prompt)
+- SSH agent started once per login session; all private keys in `~/.ssh/` loaded automatically
+- Same modern CLI tool aliases as fish config
+- Git aliases and safety aliases (`rm -i`, `cp -i`, `mv -i`)
+- Bash completion sourced if available
+
+`config/bash/bash_profile` sources `~/.bashrc`, ensuring the same config applies in both login shells (TTY, SSH) and interactive non-login shells (terminal emulators).
+
+### SSH Key Loading (bash and fish)
+
+Both configurations automatically:
+1. Start `ssh-agent` if not already running, persisting the socket to `~/.ssh/agent-env`
+2. Re-attach to the existing agent on subsequent shell opens in the same session
+3. Scan `~/.ssh/` for private keys (files with a matching `.pub`, or matching `id_*` / `*_rsa` / `*_ed25519` / `*_ecdsa` patterns)
+4. Add each key to the agent only if not already loaded (checked by fingerprint)
 
 ## Automatic Releases
 

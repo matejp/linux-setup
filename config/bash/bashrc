@@ -1,0 +1,197 @@
+#!/usr/bin/env bash
+# ~/.bashrc — interactive bash shell configuration
+
+# Only run for interactive shells
+[[ $- != *i* ]] && return
+
+# ----------------------------------------------------------------------------
+# History
+# ----------------------------------------------------------------------------
+HISTFILE="${HOME}/.bash_history"
+HISTSIZE=10000
+HISTFILESIZE=20000
+HISTCONTROL=ignoredups:erasedups   # no duplicate entries
+HISTTIMEFORMAT="%F %T  "           # timestamp every entry
+shopt -s histappend                # append to history, don't overwrite
+# Sync history across sessions after every command
+PROMPT_COMMAND="history -a; history -c; history -r; ${PROMPT_COMMAND:-}"
+
+# ----------------------------------------------------------------------------
+# Shell options
+# ----------------------------------------------------------------------------
+shopt -s autocd        # type a directory name to cd into it
+shopt -s checkwinsize  # update LINES/COLUMNS after each command
+shopt -s globstar      # ** matches files in subdirectories
+shopt -s cdspell       # autocorrect minor typos in cd
+shopt -s dirspell      # autocorrect typos in directory completion
+shopt -s nocaseglob    # case-insensitive globbing
+
+# ----------------------------------------------------------------------------
+# Environment
+# ----------------------------------------------------------------------------
+export EDITOR=nvim
+export VISUAL=nvim
+export PAGER=less
+export LESS="-R --quit-if-one-screen --no-init"
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+
+# XDG base directories
+export XDG_CONFIG_HOME="${HOME}/.config"
+export XDG_DATA_HOME="${HOME}/.local/share"
+export XDG_CACHE_HOME="${HOME}/.cache"
+
+# PATH
+[[ -d "${HOME}/.local/bin" ]] && export PATH="${HOME}/.local/bin:${PATH}"
+[[ -d "${HOME}/bin" ]]        && export PATH="${HOME}/bin:${PATH}"
+
+# ----------------------------------------------------------------------------
+# Prompt (git-aware, coloured, exit-code indicator)
+# ----------------------------------------------------------------------------
+__ps1_git_branch() {
+    local branch
+    branch=$(git symbolic-ref --short HEAD 2>/dev/null) \
+        || branch=$(git rev-parse --short HEAD 2>/dev/null) \
+        || return
+    local dirty=""
+    [[ -n "$(git status --porcelain 2>/dev/null)" ]] && dirty="*"
+    echo " (${branch}${dirty})"
+}
+
+__ps1_exit_indicator() {
+    local exit_code=$?
+    if [[ ${exit_code} -ne 0 ]]; then
+        echo "[${exit_code}] "
+    fi
+}
+
+# Colours
+_C_RESET='\[\e[0m\]'
+_C_RED='\[\e[31m\]'
+_C_GREEN='\[\e[32m\]'
+_C_YELLOW='\[\e[33m\]'
+_C_BLUE='\[\e[34m\]'
+_C_CYAN='\[\e[36m\]'
+_C_BOLD='\[\e[1m\]'
+
+PS1="${_C_RED}\$(__ps1_exit_indicator)${_C_RESET}"   # exit code (red, only on failure)
+PS1+="${_C_GREEN}${_C_BOLD}\u${_C_RESET}"             # username
+PS1+="${_C_RESET}@"
+PS1+="${_C_CYAN}\h${_C_RESET}"                        # hostname
+PS1+=" ${_C_BLUE}\w${_C_RESET}"                       # working directory
+PS1+="${_C_YELLOW}\$(__ps1_git_branch)${_C_RESET}"    # git branch
+PS1+=" \$ "
+
+# Override with starship if available
+if command -v starship &>/dev/null; then
+    eval "$(starship init bash)"
+fi
+
+# ----------------------------------------------------------------------------
+# SSH agent — start once per login session, load all keys from ~/.ssh/
+# ----------------------------------------------------------------------------
+_SSH_AGENT_ENV="${HOME}/.ssh/agent-env"
+
+_ssh_agent_start() {
+    ssh-agent -s > "${_SSH_AGENT_ENV}"
+    chmod 600 "${_SSH_AGENT_ENV}"
+    # shellcheck source=/dev/null
+    source "${_SSH_AGENT_ENV}" > /dev/null
+}
+
+_ssh_load_keys() {
+    local ssh_dir="${HOME}/.ssh"
+    [[ -d "${ssh_dir}" ]] || return
+
+    local loaded
+    loaded=$(ssh-add -l 2>/dev/null || true)
+
+    local key
+    for key in "${ssh_dir}"/*; do
+        local base
+        base=$(basename "${key}")
+        # Skip non-key files
+        case "${base}" in
+            *.pub|known_hosts|known_hosts.old|config|authorized_keys|agent-env|agent-env.fish)
+                continue ;;
+        esac
+        [[ -f "${key}" ]] || continue
+        # Accept if a matching .pub exists or name matches common patterns
+        if [[ -f "${key}.pub" ]] \
+            || [[ "${base}" =~ ^id_ ]] \
+            || [[ "${base}" =~ _(rsa|ed25519|ecdsa|dsa)$ ]]; then
+            local fp
+            fp=$(ssh-keygen -lf "${key}" 2>/dev/null | awk '{print $2}') || continue
+            [[ -n "${fp}" ]] || continue
+            # Only add if not already loaded
+            if ! grep -qF "${fp}" <<< "${loaded}" 2>/dev/null; then
+                ssh-add "${key}" 2>/dev/null || true
+            fi
+        fi
+    done
+}
+
+# Re-attach to existing agent or start a new one
+if [[ -f "${_SSH_AGENT_ENV}" ]]; then
+    # shellcheck source=/dev/null
+    source "${_SSH_AGENT_ENV}" > /dev/null
+fi
+
+if ! ssh-add -l > /dev/null 2>&1; then
+    _ssh_agent_start
+fi
+
+_ssh_load_keys
+
+# ----------------------------------------------------------------------------
+# Modern CLI tool aliases (only set if the tool is installed)
+# ----------------------------------------------------------------------------
+if command -v eza &>/dev/null; then
+    alias ls='eza --icons'
+    alias ll='eza -la --icons --git'
+    alias lt='eza --tree --icons'
+else
+    alias ls='ls --color=auto'
+    alias ll='ls -lah --color=auto'
+fi
+
+command -v bat  &>/dev/null && alias cat='bat'
+command -v fd   &>/dev/null && alias find='fd'
+command -v rg   &>/dev/null && alias grep='rg'
+command -v btop &>/dev/null && alias top='btop'
+command -v zoxide &>/dev/null && eval "$(zoxide init bash)"
+
+# ----------------------------------------------------------------------------
+# General aliases
+# ----------------------------------------------------------------------------
+alias ..='cd ..'
+alias ...='cd ../..'
+alias mkdir='mkdir -p'
+alias df='df -h'
+alias du='du -h'
+alias free='free -h'
+
+# Safety aliases
+alias rm='rm -i'
+alias cp='cp -i'
+alias mv='mv -i'
+
+# ----------------------------------------------------------------------------
+# Git aliases
+# ----------------------------------------------------------------------------
+alias g='git'
+alias gs='git status'
+alias ga='git add'
+alias gc='git commit'
+alias gp='git push'
+alias gl='git log --oneline --graph'
+alias gd='git diff'
+
+# ----------------------------------------------------------------------------
+# Completion
+# ----------------------------------------------------------------------------
+if [[ -f /usr/share/bash-completion/bash_completion ]]; then
+    source /usr/share/bash-completion/bash_completion
+elif [[ -f /etc/bash_completion ]]; then
+    source /etc/bash_completion
+fi
