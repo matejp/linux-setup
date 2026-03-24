@@ -28,7 +28,7 @@ OPTIONS:
     -e, --dev LANG          Install dev tools for language (go, c, python)
     -n, --nvim              Install Neovim configuration
     -f, --font              Install JetBrains Mono Nerd Font
-    -d, --desktop           Apply desktop settings (GNOME)
+    -k, --desktop           Apply desktop settings (GNOME)
     -a, --all               Install everything
     -v, --verbose           Enable verbose output
     -t, --dry-run           Show what would be done without executing
@@ -141,7 +141,7 @@ parse_args() {
                 INSTALL_FONT=true
                 shift
                 ;;
-            -d|--desktop)
+            -k|--desktop)
                 INSTALL_DESKTOP=true
                 shift
                 ;;

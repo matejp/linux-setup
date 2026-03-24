@@ -16,8 +16,11 @@ sudo ./setup.sh --all
 - **Automatic Distribution Detection**: Identifies your Linux distribution and uses the correct package manager
 - **Modular Architecture**: Each component (packages, Neovim config, etc.) is independently testable
 - **Base Packages**: htop, git, neovim, curl, wget
+- **Modern CLI Tools**: eza, bat, ripgrep, fd, fzf, zoxide, lazygit, btop, tldr, and more
 - **Development Tools**: Go, C/C++, and Python development environments
 - **Neovim Configuration**: Ready-to-use IDE setup with LSP, Treesitter, and DAP
+- **Desktop Settings**: GNOME configuration (dash-to-dock, etc.)
+- **Fonts**: JetBrains Mono Nerd Font
 
 ## Supported Distributions
 
@@ -55,6 +58,18 @@ sudo ./setup.sh --dev go python   # Go and Python
 
 ```bash
 sudo ./setup.sh --nvim
+```
+
+### Install JetBrains Mono Nerd Font
+
+```bash
+./setup.sh --font
+```
+
+### Apply Desktop Settings
+
+```bash
+./setup.sh --desktop
 ```
 
 ### Detect Distribution
@@ -105,6 +120,8 @@ sudo ./setup.sh --nvim
 | `-p, --pkgs` | Install base packages only |
 | `-e, --dev LANG` | Install dev tools for language |
 | `-n, --nvim` | Install Neovim configuration |
+| `-f, --font` | Install JetBrains Mono Nerd Font |
+| `-k, --desktop` | Apply desktop settings (GNOME) |
 | `-a, --all` | Install everything |
 | `-v, --verbose` | Enable verbose output |
 | `-t, --dry-run` | Show what would be done without executing |
@@ -266,7 +283,9 @@ Install recommended servers: gopls, clangd, pyright
 ├── lib/
 │   ├── distro.sh         # Distribution detection
 │   ├── packages.sh       # Package management
-│   └── nvim.sh           # Neovim configuration
+│   ├── nvim.sh           # Neovim configuration
+│   ├── fonts.sh          # Font installation
+│   └── desktop.sh        # Desktop settings
 ├── config/
 │   └── nvim/
 │       ├── init.lua      # Neovim entry point
