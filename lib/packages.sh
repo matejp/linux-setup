@@ -34,7 +34,7 @@ BASE_PACKAGES=(
 declare -gA DISTRO_PACKAGES
 DISTRO_PACKAGES[apt]="htop git neovim curl wget eza fd-find bat ripgrep jq btop duf zoxide fzf tldr-py httpie trash-cli lazygit fish"
 DISTRO_PACKAGES[dnf]="htop git neovim curl wget eza ripgrep jq btop duf zoxide fzf tldr lazygit fish"
-DISTRO_PACKAGES[zypper]="htop git neovim curl wget ripgrep jq btop duf zoxide fzf lazygit fish"
+DISTRO_PACKAGES[zypper]="htop git neovim curl wget ripgrep bat jq btop duf zoxide fzf lazygit fish"
 DISTRO_PACKAGES[pacman]="htop git neovim curl wget eza fd bat ripgrep jq btop duf zoxide fzf tldr httpie trash-cli lazygit fish"
 
 declare -gA DEV_PACKAGES_APT

@@ -12,6 +12,7 @@ INSTALL_BASE=false
 INSTALL_DEV=false
 INSTALL_NVIM=false
 INSTALL_FONT=false
+INSTALL_DESKTOP=false
 FORCE_DISTRO=""
 
 usage() {
@@ -27,6 +28,7 @@ OPTIONS:
     -e, --dev LANG          Install dev tools for language (go, c, python)
     -n, --nvim              Install Neovim configuration
     -f, --font              Install JetBrains Mono Nerd Font
+    -d, --desktop           Apply desktop settings (GNOME)
     -a, --all               Install everything
     -v, --verbose           Enable verbose output
     -t, --dry-run           Show what would be done without executing
@@ -139,11 +141,16 @@ parse_args() {
                 INSTALL_FONT=true
                 shift
                 ;;
+            -d|--desktop)
+                INSTALL_DESKTOP=true
+                shift
+                ;;
             -a|--all)
                 INSTALL_BASE=true
                 INSTALL_DEV=true
                 INSTALL_NVIM=true
                 INSTALL_FONT=true
+                INSTALL_DESKTOP=true
                 shift
                 ;;
             -v|--verbose)
@@ -248,6 +255,13 @@ main() {
         install_nvim_config
         install_nvim_dependencies
         log_success "Neovim configuration installed"
+    fi
+
+    if [[ "$INSTALL_DESKTOP" == true ]]; then
+        load_library "desktop"
+        log_info "Applying desktop settings..."
+        install_gnome_settings
+        log_success "Desktop settings applied"
     fi
 
     log_success "Setup complete!"
