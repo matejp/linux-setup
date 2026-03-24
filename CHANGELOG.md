@@ -12,6 +12,8 @@ All notable changes to this project will be documented in this file.
 - Neovim configuration: Updated README to reflect No Plugins edition
 - lib/nvim.sh: Removed plugin-related verification and dependencies
 - config/nvim/init.lua: Fix invalid 'nowrap' option (use 'wrap' instead)
+- config/nvim/init.lua: Fix multiple issues (compatible, filetype, undoreload, statusline, SpellCheckStatus, duplicate functions, terminal keymaps, empty keymap)
+- AGENTS.md: Do not automatically commit changes without explicit request
 
 ### Changed
 - Updated README.md to reflect new features and options

@@ -6,7 +6,7 @@ vim.g.netrw_banner = 0
 vim.g.netrw_liststyle = 3
 vim.g.netrw_winsize = 20
 
-vim.opt.compatible = false
+-- vim.opt.compatible is not valid in Neovim (always off)
 vim.opt.visualbell = true
 vim.opt.encoding = "utf-8"
 vim.opt.mouse = "a"
@@ -35,39 +35,18 @@ vim.opt.wildmenu = true
 vim.opt.wildignore = "*.docx,*.jpg,*.png,*.gif,*.pdf,*.pyc,*.exe,*.flv,*.img,*.xlsx"
 vim.opt.undofile = true
 vim.opt.undodir = vim.fn.stdpath("data") .. "/undo"
-vim.opt.undoreload = 10000
+-- vim.opt.undoreload is not a valid Neovim option; removed
 vim.opt.omnifunc = "syntaxcomplete#Complete"
 vim.opt.complete:append("k")
 vim.opt.completeopt = "menu,menuone,noinsert"
 
-vim.opt.filetype = "on"
 vim.cmd("filetype plugin indent on")
 vim.cmd("syntax on")
 
 vim.cmd([[colorscheme slate]])
 
-vim.opt.laststatus = 2
-vim.opt.statusline = ""
-vim.opt.statusline = "%2*"
-vim.opt.statusline = "%" .. vim.opt.statusline .. "%{StatuslineMode()} "
-vim.opt.statusline = "%" .. vim.opt.statusline .. "%{SpellCheckStatus()} %1* "
-vim.opt.statusline = "%" .. vim.opt.statusline .. "<-"
-vim.opt.statusline = "%" .. vim.opt.statusline .. " %f "
-vim.opt.statusline = "%" .. vim.opt.statusline .. "-> "
-vim.opt.statusline = "%" .. vim.opt.statusline .. "%4*%m%="
-vim.opt.statusline = "%" .. vim.opt.statusline .. "%h%r%4*%c/"
-vim.opt.statusline = "%" .. vim.opt.statusline .. "%l/%L "
-vim.opt.statusline = "%" .. vim.opt.statusline .. "%1*|%y "
-vim.opt.statusline = "%" .. vim.opt.statusline .. "%4*%P t:%n"
-
-vim.cmd([[
-hi User2 ctermbg=lightgreen ctermfg=black guibg=lightgreen guifg=black
-hi User1 ctermbg=brown ctermfg=white guibg=black guifg=white
-hi User3 ctermbg=brown ctermfg=lightcyan guibg=black guifg=lightblue
-hi User4 ctermbg=brown ctermfg=green guibg=black guifg=lightgreen
-]])
-
-function StatuslineMode()
+-- Statusline functions (Lua only; Vimscript versions removed as duplicates)
+local function statusline_mode()
     local mode = vim.fn.mode()
     if mode == "n" then return "NORMAL"
     elseif mode == "V" then return "VISUAL LINE"
@@ -80,44 +59,30 @@ function StatuslineMode()
     end
 end
 
-function SpellCheckStatus()
-    if vim.opt.spell then
+local function spell_check_status()
+    -- vim.opt.spell:get() returns the actual boolean value
+    if vim.opt.spell:get() then
         return " [SPELL]"
     else
         return ""
     end
 end
 
+-- Expose functions globally so the statusline %{} expressions can call them
+StatuslineMode = statusline_mode
+SpellCheckStatus = spell_check_status
+
+vim.opt.laststatus = 2
+vim.opt.statusline = "%2* %{v:lua.StatuslineMode()} %{v:lua.SpellCheckStatus()} %1* <- %f -> %4*%m%=%h%r%4*%c/%l/%L %1*|%y %4*%P t:%n"
+
 vim.cmd([[
-function! s:StatuslineMode()
-    let mode = mode()
-    if mode ==# 'n'
-        return 'NORMAL'
-    elseif mode ==# 'V'
-        return 'VISUAL LINE'
-    elseif mode =~# 'v\|no'
-        return 'VISUAL'
-    elseif mode ==# 'i'
-        return 'INSERT'
-    elseif mode ==# 'R'
-        return 'REPLACE'
-    elseif mode ==# 'c'
-        return 'COMMAND'
-    elseif mode ==# '!'
-        return 'SHELL'
-    else
-        return 'VIM'
-    endif
-endfunction
+hi User2 ctermbg=lightgreen ctermfg=black guibg=lightgreen guifg=black
+hi User1 ctermbg=brown ctermfg=white guibg=black guifg=white
+hi User3 ctermbg=brown ctermfg=lightcyan guibg=black guifg=lightblue
+hi User4 ctermbg=brown ctermfg=green guibg=black guifg=lightgreen
+]])
 
-function! s:SpellCheckStatus()
-    if &spell
-        return ' [SPELL]'
-    else
-        return ''
-    endif
-endfunction
-
+vim.cmd([[
 function! ToggleHebrew()
     if &rtl
         set norl
@@ -160,9 +125,9 @@ vim.api.nvim_set_keymap("n", "<leader>e", ":Lex<CR>", { noremap = true, silent =
 vim.api.nvim_set_keymap("n", "<leader>o", ":Explore<CR>", { noremap = true, silent = true })
 
 vim.api.nvim_set_keymap("n", "<C-t>", ":ter<CR>", { noremap = true, silent = true })
-vim.api.nvim_set_keymap("t", "<C-t>", "exit<CR>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap("t", "<C-t>", "<C-\\><C-n>:q<CR>", { noremap = true, silent = true })
 vim.api.nvim_set_keymap("t", "<Esc>", "<C-\\><C-n>", { noremap = true })
-vim.api.nvim_set_keymap("t", "<C-q>", "<C-\\><C-d>", { noremap = true })
+vim.api.nvim_set_keymap("t", "<C-q>", "<C-\\><C-n>:q!<CR>", { noremap = true })
 
 vim.api.nvim_set_keymap("n", "<leader>y", ":split ", { noremap = true })
 vim.api.nvim_set_keymap("n", "<leader>x", ":vsplit ", { noremap = true })
@@ -184,7 +149,6 @@ vim.api.nvim_set_keymap("n", "<leader>hx", ":call DoHex()<CR>", { noremap = true
 vim.api.nvim_set_keymap("n", "<leader>v", "<C-v>", { noremap = true })
 
 vim.api.nvim_set_keymap("v", "<C-c>", '"*y :let @+=@*<CR>', { noremap = true })
-vim.api.nvim_set_keymap("n", '"+P', '', { noremap = true })
 vim.api.nvim_set_keymap("v", "+y", '"*y :let @+=@*<CR>', { noremap = true })
 
 vim.api.nvim_set_keymap("n", "<leader>r", ":registers<CR>", { noremap = true, silent = true })
@@ -202,16 +166,14 @@ vim.api.nvim_set_keymap("v", ">", ">gv", { noremap = true })
 
 vim.api.nvim_set_keymap("n", "<C-z>", ":setlocal spell! spelllang=en_us<CR>", { noremap = true, silent = true })
 
-vim.api.nvim_create_autocmd("Filetype", {
+vim.api.nvim_create_autocmd("FileType", {
     pattern = "*",
     callback = function()
-        vim.cmd("setlocal formatoptions-=c")
-        vim.cmd("setlocal formatoptions-=r")
-        vim.cmd("setlocal formatoptions-=o")
+        vim.opt_local.formatoptions:remove({ "c", "r", "o" })
     end,
 })
 
-vim.api.nvim_create_autocmd("Filetype", {
+vim.api.nvim_create_autocmd("FileType", {
     pattern = "html",
     callback = function()
         vim.opt_local.tabstop = 2

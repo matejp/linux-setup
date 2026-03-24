@@ -162,6 +162,7 @@ die() { echo "Error: $*" >&2; exit 1; }
   - Update README.md to document new features
   - Update CHANGELOG.md with details of all changes
   - Add both README.md and CHANGELOG.md to the git commit
+- **Do NOT automatically commit changes** - wait for explicit user request before committing
 
 ## Security Considerations
 
