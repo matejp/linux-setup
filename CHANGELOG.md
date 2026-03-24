@@ -10,6 +10,8 @@ All notable changes to this project will be documented in this file.
 - `--font` / `-f` flag for JetBrains Mono Nerd Font installation
 - `lib/desktop.sh` for desktop configuration
 - `lib/fonts.sh` for font installation
+- GitHub Actions workflow for automatic releases (.github/workflows/release.yml)
+- Automatic semantic versioning with git-auto-semver
 
 ### Changed
 - Updated README.md to reflect new features and options

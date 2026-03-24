@@ -375,6 +375,19 @@ DEV_PACKAGES_YOUR_PM[go]="golang"
 
 Edit `config/nvim/lua/user/plugins.lua` to add LSP and Treesitter support.
 
+## Automatic Releases
+
+The project uses GitHub Actions with [git-auto-semver](https://github.com/marketplace/actions/git-automatic-semantic-versioning) for automatic versioning on every push to main:
+
+- **Automatic version bump** based on commit messages (patch for fixes, minor for features)
+- **Automatic tag creation** following semantic versioning (v0.1.0, v0.1.1, etc.)
+- **Automatic GitHub Release** creation with release notes
+
+### Commit Message Convention
+
+- `fix:` or no prefix → patch bump (0.1.0 → 0.1.1)
+- `feat:` → minor bump (0.1.0 → 0.2.0)
+
 ## License
 
 MIT License

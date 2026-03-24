@@ -1,0 +1,38 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Calculate version
+        id: version
+        uses: bitshifted/git-auto-semver@v2
+        with:
+          main_branch: main
+          create_tag: true
+          initial_version: '0.1.0'
+
+      - name: Create GitHub Release
+        if: steps.version.outputs.version_string != ''
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.version_string }}
+          name: Release ${{ steps.version.outputs.version_string }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
