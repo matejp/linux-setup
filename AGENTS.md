@@ -158,6 +158,10 @@ die() { echo "Error: $*" >&2; exit 1; }
 - Branch naming: `feature/`, `fix/`, `setup/` prefixes
 - Test changes in a VM or container before committing
 - Keep commits atomic and focused
+- **Before every commit:**
+  - Update README.md to document new features
+  - Update CHANGELOG.md with details of all changes
+  - Add both README.md and CHANGELOG.md to the git commit
 
 ## Security Considerations
 
