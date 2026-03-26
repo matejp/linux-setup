@@ -20,6 +20,9 @@ All notable changes to this project will be documented in this file.
 - `lib/bash.sh` for bash configuration deployment
 - `config/bash/bashrc` - best-practice bash config with SSH agent, aliases, git-aware prompt
 - `config/bash/bash_profile` - login shell entry point that sources bashrc
+- `detect_ubuntu_version()` and `get_ubuntu_major_version()` in lib/distro.sh
+- `filter_packages_for_distro()` in lib/packages.sh: skips lazygit on Ubuntu < 26.04
+- 3 new tests for Ubuntu version-based package filtering
 
 ### Changed
 - Neovim configuration: Updated README to reflect No Plugins edition
@@ -27,9 +30,9 @@ All notable changes to this project will be documented in this file.
 - config/nvim/init.lua: Fix invalid 'nowrap' option (use 'wrap' instead)
 - config/nvim/init.lua: Fix multiple issues (compatible, filetype, undoreload, statusline, SpellCheckStatus, duplicate functions, terminal keymaps, empty keymap)
 - AGENTS.md: Do not automatically commit changes without explicit request
-
-### Changed
 - Updated README.md to reflect new features and options
+- Fix tldr-py typo to tldr in apt package list
+- Updated test_packages.sh to match current package lists
 
 ## [0.1.0] - 2026-03-24
 

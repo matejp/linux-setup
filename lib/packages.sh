@@ -32,7 +32,7 @@ BASE_PACKAGES=(
 )
 
 declare -gA DISTRO_PACKAGES
-DISTRO_PACKAGES[apt]="htop git neovim curl wget eza fd-find bat ripgrep jq btop duf zoxide fzf tldr-py httpie trash-cli lazygit fish"
+DISTRO_PACKAGES[apt]="htop git neovim curl wget eza fd-find bat ripgrep jq btop duf zoxide fzf tldr httpie trash-cli lazygit fish"
 DISTRO_PACKAGES[dnf]="htop git neovim curl wget eza ripgrep jq btop duf zoxide fzf tldr lazygit fish"
 DISTRO_PACKAGES[zypper]="htop git neovim curl wget ripgrep bat jq btop duf zoxide fzf lazygit fish"
 DISTRO_PACKAGES[pacman]="htop git neovim curl wget eza fd bat ripgrep jq btop duf zoxide fzf tldr httpie trash-cli lazygit fish"
@@ -83,6 +83,30 @@ get_dev_packages() {
     echo "${!var_name:-}"
 }
 
+filter_packages_for_distro() {
+    local distro="$1"
+    local packages="$2"
+
+    if [[ "$distro" == "ubuntu" ]]; then
+        # Source distro.sh only if functions not already loaded
+        if ! declare -f detect_ubuntu_version > /dev/null 2>&1 \
+            || ! declare -f get_ubuntu_major_version > /dev/null 2>&1; then
+            source "${SCRIPT_DIR}/distro.sh"
+        fi
+        local version major
+        version=$(detect_ubuntu_version)
+        major=$(get_ubuntu_major_version "${version}")
+
+        if [[ "${major:-0}" -lt 26 ]]; then
+            log "INFO" "Ubuntu ${version} detected: skipping lazygit (requires 26.04+)"
+            packages="${packages//lazygit/}"
+        fi
+    fi
+
+    # Normalise extra whitespace left by removals
+    echo "${packages}" | tr -s ' '
+}
+
 install_base() {
     local distro="${1:-}"
     local pm="${2:-}"
@@ -95,6 +119,7 @@ install_base() {
 
     local packages
     packages=$(get_distro_packages "$distro" "$pm")
+    packages=$(filter_packages_for_distro "$distro" "$packages")
 
     if [[ -z "$packages" ]]; then
         log "ERROR" "No packages defined for $distro ($pm)"

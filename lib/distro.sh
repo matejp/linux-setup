@@ -103,6 +103,24 @@ get_install_cmd() {
     esac
 }
 
+detect_ubuntu_version() {
+    if [[ -f /etc/os-release ]]; then
+        local id version_id
+        id=$(grep -E '^ID=' /etc/os-release | cut -d= -f2 | tr -d '"')
+        version_id=$(grep -E '^VERSION_ID=' /etc/os-release | cut -d= -f2 | tr -d '"')
+        if [[ "$id" == "ubuntu" ]]; then
+            echo "${version_id:-}"
+            return
+        fi
+    fi
+    echo ""
+}
+
+get_ubuntu_major_version() {
+    local version="$1"
+    echo "${version%%.*}"
+}
+
 install_packages() {
     local packages=("$@")
     local distro

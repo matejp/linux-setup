@@ -22,6 +22,7 @@ sudo ./setup.sh --all
 - **Desktop Settings**: GNOME configuration (dash-to-dock, etc.)
 - **Fish Shell**: Install fish, set as default shell, and deploy basic config
 - **Bash Configuration**: Best-practice `~/.bashrc` and `~/.bash_profile` with SSH agent, aliases, and git-aware prompt
+- **Packages**: Version-aware package filtering (e.g. lazygit skipped on Ubuntu < 26.04)
 - **Fonts**: JetBrains Mono Nerd Font
 
 ## Supported Distributions

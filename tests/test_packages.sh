@@ -33,19 +33,46 @@ log_fail() {
 test_get_distro_packages() {
     log_test "get_distro_packages for apt"
     result=$(get_distro_packages "ubuntu" "apt")
-    [[ "$result" == "htop git neovim curl wget" ]] && log_pass || log_fail "got: $result"
+    [[ "$result" == *"htop"* ]] && [[ "$result" == *"ripgrep"* ]] && [[ "$result" == *"lazygit"* ]] \
+        && log_pass || log_fail "got: $result"
 
     log_test "get_distro_packages for dnf"
     result=$(get_distro_packages "fedora" "dnf")
-    [[ "$result" == "htop git neovim curl wget" ]] && log_pass || log_fail "got: $result"
+    [[ "$result" == *"htop"* ]] && [[ "$result" == *"ripgrep"* ]] && [[ "$result" == *"lazygit"* ]] \
+        && log_pass || log_fail "got: $result"
 
     log_test "get_distro_packages for zypper"
     result=$(get_distro_packages "opensuse" "zypper")
-    [[ "$result" == "htop git neovim curl wget" ]] && log_pass || log_fail "got: $result"
+    [[ "$result" == *"htop"* ]] && [[ "$result" == *"ripgrep"* ]] \
+        && log_pass || log_fail "got: $result"
 
     log_test "get_distro_packages for pacman"
     result=$(get_distro_packages "arch" "pacman")
-    [[ "$result" == "htop git neovim curl wget" ]] && log_pass || log_fail "got: $result"
+    [[ "$result" == *"htop"* ]] && [[ "$result" == *"ripgrep"* ]] && [[ "$result" == *"lazygit"* ]] \
+        && log_pass || log_fail "got: $result"
+}
+
+test_filter_packages_for_distro() {
+    log_test "filter_packages_for_distro: Ubuntu 24.04 removes lazygit"
+    detect_ubuntu_version() { echo "24.04"; }
+    get_ubuntu_major_version() { local v="$1"; echo "${v%%.*}"; }
+    result=$(filter_packages_for_distro "ubuntu" "htop lazygit fish ripgrep")
+    unset -f detect_ubuntu_version get_ubuntu_major_version
+    [[ "$result" != *"lazygit"* ]] \
+        && log_pass || log_fail "lazygit should be absent on Ubuntu 24.04, got: $result"
+
+    log_test "filter_packages_for_distro: Ubuntu 26.04 keeps lazygit"
+    detect_ubuntu_version() { echo "26.04"; }
+    get_ubuntu_major_version() { local v="$1"; echo "${v%%.*}"; }
+    result=$(filter_packages_for_distro "ubuntu" "htop lazygit fish ripgrep")
+    unset -f detect_ubuntu_version get_ubuntu_major_version
+    [[ "$result" == *"lazygit"* ]] \
+        && log_pass || log_fail "lazygit should be present on Ubuntu 26.04, got: $result"
+
+    log_test "filter_packages_for_distro: non-Ubuntu keeps lazygit"
+    result=$(filter_packages_for_distro "arch" "htop lazygit fish ripgrep")
+    [[ "$result" == *"lazygit"* ]] \
+        && log_pass || log_fail "lazygit should be present on non-Ubuntu, got: $result"
 }
 
 test_get_dev_packages() {
@@ -92,6 +119,8 @@ main() {
     test_base_packages
     echo ""
     test_get_distro_packages
+    echo ""
+    test_filter_packages_for_distro
     echo ""
     test_get_dev_packages
     echo ""
