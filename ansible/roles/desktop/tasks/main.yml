@@ -1,0 +1,13 @@
+---
+- name: Check if gsettings is available
+  ansible.builtin.command:
+    cmd: command -v gsettings
+  register: linux_setup_gsettings_cmd
+  changed_when: false
+
+- name: Apply dash-to-dock click action
+  ansible.builtin.command:
+    cmd: gsettings set org.gnome.shell.extensions.dash-to-dock click-action '{{ linux_setup_gnome_click_action }}'
+  changed_when: false
+  when: linux_setup_gsettings_cmd.rc == 0
+  failed_when: false

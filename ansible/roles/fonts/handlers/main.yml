@@ -1,0 +1,7 @@
+---
+- name: Refresh font cache
+  ansible.builtin.command:
+    cmd: fc-cache -fv "{{ linux_setup_font_dir }}"
+  changed_when: font_cache_refresh.rc == 0
+  register: font_cache_refresh
+  failed_when: false

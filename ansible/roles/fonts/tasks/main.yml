@@ -1,0 +1,45 @@
+---
+- name: Ensure unzip is available
+  ansible.builtin.package:
+    name: unzip
+    state: present
+  become: true
+
+- name: Ensure font directory exists
+  ansible.builtin.file:
+    path: "{{ linux_setup_font_dir }}"
+    state: directory
+    owner: "{{ linux_setup_target_user }}"
+    group: "{{ linux_setup_target_user }}"
+    mode: "0755"
+
+- name: Check existing font files
+  ansible.builtin.find:
+    paths: "{{ linux_setup_font_dir }}"
+    patterns:
+      - "*.ttf"
+      - "*.otf"
+    recurse: true
+  register: linux_setup_font_files
+
+- name: Download JetBrains Mono Nerd Font archive
+  ansible.builtin.get_url:
+    url: "{{ linux_setup_font_url }}"
+    dest: "{{ linux_setup_font_archive }}"
+    mode: "0644"
+  when: linux_setup_font_files.matched == 0
+
+- name: Install JetBrains Mono Nerd Font from archive
+  ansible.builtin.unarchive:
+    src: "{{ linux_setup_font_archive }}"
+    dest: "{{ linux_setup_font_dir }}"
+    remote_src: true
+    extra_opts: ["-o"]
+  when: linux_setup_font_files.matched == 0
+
+- name: Remove temporary font archive
+  ansible.builtin.file:
+    path: "{{ linux_setup_font_archive }}"
+    state: absent
+  when: linux_setup_font_files.matched == 0
+  notify: Refresh font cache

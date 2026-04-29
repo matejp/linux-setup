@@ -1,0 +1,3 @@
+linux_setup_font_url: "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip"
+linux_setup_font_dir: "{{ linux_setup_target_home }}/.local/share/fonts/jetbrains-nerd"
+linux_setup_font_archive: /tmp/jetbrains-nerd.zip

@@ -1,0 +1,3 @@
+linux_setup_bash_source_dir: "{{ linux_setup_repo_root }}/config/bash"
+linux_setup_bashrc_target: "{{ linux_setup_target_home }}/.bashrc"
+linux_setup_bash_profile_target: "{{ linux_setup_target_home }}/.bash_profile"

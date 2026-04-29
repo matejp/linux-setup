@@ -1,0 +1,53 @@
+---
+- name: Ensure target parent directory exists
+  ansible.builtin.file:
+    path: "{{ linux_setup_target_home }}/.config"
+    state: directory
+    owner: "{{ linux_setup_target_user }}"
+    group: "{{ linux_setup_target_user }}"
+    mode: "0755"
+
+- name: Backup existing Neovim configuration
+  ansible.builtin.stat:
+    path: "{{ linux_setup_nvim_target }}"
+  register: linux_setup_existing_nvim
+
+- name: Check if Neovim backup already exists
+  ansible.builtin.stat:
+    path: "{{ linux_setup_nvim_target }}{{ linux_setup_nvim_backup_suffix }}"
+  register: linux_setup_existing_nvim_backup
+  when: linux_setup_existing_nvim.stat.exists
+
+- name: Move old Neovim configuration out of the way
+  ansible.builtin.command:
+    cmd: mv "{{ linux_setup_nvim_target }}" "{{ linux_setup_nvim_target }}{{ linux_setup_nvim_backup_suffix }}"
+  when:
+    - linux_setup_existing_nvim.stat.exists
+    - not linux_setup_existing_nvim_backup.stat.exists
+
+- name: Deploy Neovim configuration
+  ansible.builtin.copy:
+    src: "{{ linux_setup_nvim_source }}/"
+    dest: "{{ linux_setup_nvim_target }}"
+    owner: "{{ linux_setup_target_user }}"
+    group: "{{ linux_setup_target_user }}"
+    mode: "0644"
+
+- name: Verify Neovim configuration exists
+  ansible.builtin.stat:
+    path: "{{ linux_setup_nvim_target }}/init.lua"
+  register: linux_setup_nvim_init
+  failed_when: not linux_setup_nvim_init.stat.exists
+
+- name: Check nvim command
+  ansible.builtin.command:
+    cmd: nvim --version
+  register: linux_setup_nvim_version
+  changed_when: false
+  failed_when: linux_setup_nvim_version.rc != 0
+  when: not ansible_check_mode
+
+- name: Report installed Neovim version
+  ansible.builtin.debug:
+    msg: "Neovim version: {{ linux_setup_nvim_version.stdout_lines[0] }}"
+  when: not ansible_check_mode

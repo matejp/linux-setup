@@ -1,0 +1,16 @@
+---
+- name: Detect distribution for Linux Setup
+  hosts: localhost
+  gather_facts: true
+
+  pre_tasks:
+    - name: Detect distribution metadata
+      ansible.builtin.include_role:
+        name: distro_facts
+
+  tasks:
+    - name: Show detected platform information
+      ansible.builtin.debug:
+        msg:
+          - "distribution: {{ linux_setup_distro_id }}"
+          - "package_manager: {{ linux_setup_package_manager }}"

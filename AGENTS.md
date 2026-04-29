@@ -2,140 +2,114 @@
 
 ## Overview
 
-This repository contains Linux configuration files, dotfiles, and setup scripts. The primary languages used are shell scripts (bash), YAML, and TOML.
+This repository contains Linux configuration files, dotfiles, and Ansible automation for system setup. The primary technologies are Ansible (YAML) and configuration files for various tools.
 
 ## Build/Lint/Test Commands
 
-### Linux Setup Scripts
+### Ansible Setup
 ```bash
-# Check all shell script syntax
-bash -n setup.sh lib/*.sh
+# Run Ansible test suite
+cd ansible && ansible-playbook tests/test.yml
 
-# Run full test suite
-./tests/test.sh
+# Run specific test
+cd ansible && ansible-playbook tests/test.yml --tags packages
 
-# Run unit tests for specific library
-./tests/test_distro.sh
-./tests/test_packages.sh
+# Use test runner script
+cd ansible && ./tests/run_tests.sh
 
-# Run a single test function
-bash -c 'source lib/distro.sh && get_package_manager ubuntu'
+# Syntax check all playbooks
+cd ansible && ansible-playbook playbooks/site.yml --syntax-check
+cd ansible && ansible-playbook playbooks/detect.yml --syntax-check
 
-# Run shellcheck (if installed)
-shellcheck setup.sh lib/*.sh
+# Lint Ansible code (requires ansible-lint)
+ansible-lint ansible/playbooks/*.yml ansible/roles/*/tasks/*.yml
 
-# Dry-run setup (preview without executing)
-./setup.sh --all --dry-run
+# Dry-run installation (check mode)
+cd ansible && ansible-playbook playbooks/site.yml --tags all --check
 
-# Detect current distribution
-./setup.sh --detect
+# Dry-run specific component
+cd ansible && ansible-playbook playbooks/site.yml --tags nvim --check
 
-# Echo all commands before executing (debug)
-./setup.sh --all --echo
+# Detect distribution
+cd ansible && ansible-playbook playbooks/detect.yml
 
-# Log all commands to file
-./setup.sh --all --log setup.log
+# Verbose output (debug)
+cd ansible && ansible-playbook playbooks/site.yml --tags all -vvv
 
-# Combined: dry-run with command echo
-./setup.sh --all --dry-run --echo
+# Install everything
+cd ansible && ansible-playbook playbooks/site.yml --tags all
+
+# Install specific components
+cd ansible && ansible-playbook playbooks/site.yml --tags base
+cd ansible && ansible-playbook playbooks/site.yml --tags dev
+cd ansible && ansible-playbook playbooks/site.yml --tags nvim
+cd ansible && ansible-playbook playbooks/site.yml --tags fish
+cd ansible && ansible-playbook playbooks/site.yml --tags bash
+cd ansible && ansible-playbook playbooks/site.yml --tags font
+cd ansible && ansible-playbook playbooks/site.yml --tags desktop
+
+# Install multiple components
+cd ansible && ansible-playbook playbooks/site.yml --tags base,nvim,fish
 ```
 
-### Shell Scripts
-```bash
-# Check shell script syntax
-bash -n script.sh
-
-# Run shellcheck for linting
-shellcheck script.sh
-
-# Format shell scripts
-shfmt -w script.sh
-```
-
-### Ansible
-```bash
-# Syntax check Ansible playbooks
-ansible-playbook --syntax-check playbook.yml
-
-# Check Ansible code (requires ansible-lint)
-ansible-lint playbook.yml
-
-# Dry-run playbook
-ansible-playbook --check playbook.yml
-```
-
-### Nix/NixOS
-```bash
-# Evaluate Nix expression
-nix-instantiate --eval default.nix
-
-# Build NixOS configuration
-sudo nixos-rebuild switch
-
-# Format Nix files
-nixfmt config.nix
-```
-
-### General
+### YAML Files
 ```bash
 # Check for common issues in YAML files
-yamllint config.yml
+yamllint ansible/**/*.yml
 
-# Validate TOML files
-tomll config.toml
+# Validate YAML syntax
+python3 -c 'import yaml, sys; yaml.safe_load(sys.stdin)' < file.yml
 ```
 
 ## Code Style Guidelines
 
-### Shell Scripts
+### Ansible
 
-- Use `#!/usr/bin/env bash` shebang for portability
-- Use `set -euo pipefail` for strict error handling
-- Use 4 spaces for indentation
-- Use `${var}` syntax for variable expansion
-- Use `[[ ]]` for conditionals (not `[ ]`)
-- Use `local` for function-scoped variables
-- Quote all variables: `"$variable"` not `$variable`
-- Use uppercase for environment variables: `HOME`, `PATH`
-- Use lowercase for local variables: `config_file`, `target_dir`
+- Use 2 spaces for indentation in YAML files
+- Use lowercase for keys and variable names
+- Use `linux_setup_` prefix for all custom variables
+- Quote strings that might be misinterpreted (yes/no, version numbers)
+- Use descriptive task names that explain what the task does
+- Add `tags:` to tasks for selective execution
+- Use `when:` conditions to control task execution
+- Prefer Ansible modules over shell commands when available
 
-### Naming Conventions
+### Ansible Naming Conventions
 
 | Type | Convention | Example |
 |------|------------|---------|
-| Variables | lowercase_snake_case | `config_file`, `target_dir` |
-| Functions | lowercase_snake_case | `install_packages()`, `setup_dotfiles()` |
-| Constants | UPPERCASE_SNAKE_CASE | `DOTFILES_DIR`, `CONFIG_HOME` |
-| Files | lowercase-kebab-case or lowercase_snake_case | `install-script.sh`, `zsh_config` |
-| Directories | lowercase-kebab-case | `backup-files`, `config-dirs` |
+| Variables | lowercase_snake_case | `linux_setup_target_user`, `linux_setup_distro_id` |
+| Roles | lowercase_snake_case | `distro_facts`, `packages`, `nvim` |
+| Files | lowercase_snake_case.yml | `main.yml`, `test_packages.yml` |
+| Tags | lowercase | `base`, `dev`, `nvim`, `all` |
+| Handlers | Descriptive sentence | `Refresh font cache`, `Reload shell configuration` |
 
-### Imports and Dependencies
+### Variable Naming
 
-- Specify absolute paths when possible
-- Use `source` or `.` for shell script includes
-- Document all external dependencies in comments
-- Prefer native tools over external dependencies
+- All custom variables MUST start with `linux_setup_`
+- Use descriptive names: `linux_setup_nvim_target` not `nvim_dir`
+- Boolean flags: `linux_setup_install_<component>` (e.g., `linux_setup_install_nvim`)
+- Paths: `linux_setup_<component>_source` and `linux_setup_<component>_target`
+- Facts: `linux_setup_<component>_resolved` for computed values
 
-### Error Handling
+### Task Structure
 
-```bash
-# Always use these options at the top of scripts
-set -euo pipefail
-
-# For commands that may fail intentionally
-command_that_might_fail || true
-command_that_might_fail || { echo "Failed"; exit 1; }
-
-# Use error messages
-die() { echo "Error: $*" >&2; exit 1; }
+```yaml
+- name: Clear, descriptive task name
+  ansible.builtin.module:
+    parameter: value
+  when: condition
+  tags:
+    - tag_name
+  become: true  # Only if sudo required
 ```
 
 ### Documentation
 
-- Add shebang and brief description at top of scripts
-- Use comments for non-obvious logic
-- Document all environment variables used
-- Keep documentation in sync with code
+- Add comments for complex logic in tasks
+- Document all variables in role `defaults/main.yml`
+- Keep README.md and docs/ in sync with code
+- Update tests when changing role behavior
 
 ## Configuration Files
 

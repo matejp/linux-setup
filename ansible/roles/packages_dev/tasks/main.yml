@@ -1,0 +1,36 @@
+---
+- name: Resolve requested dev languages
+  ansible.builtin.set_fact:
+    linux_setup_dev_languages_resolved: >-
+      {{
+        (linux_setup_dev_languages
+        | default(linux_setup_default_dev_languages, true)
+        if linux_setup_dev_languages is not string
+        else linux_setup_dev_languages.split(',')
+        )
+        | map('trim')
+        | reject('equalto', '')
+        | unique
+        | list
+      }}
+  tags: dev
+
+- name: Add development packages by language
+  ansible.builtin.set_fact:
+    linux_setup_dev_packages_resolved: >-
+      {{ linux_setup_dev_packages_resolved +
+      (linux_setup_dev_packages[linux_setup_package_manager][linux_setup_dev_language] | default([], true)) }}
+  loop: "{{ linux_setup_dev_languages_resolved }}"
+  loop_control:
+    loop_var: linux_setup_dev_language
+  tags: dev
+
+- name: Install development packages
+  ansible.builtin.package:
+    name: "{{ linux_setup_dev_packages_resolved | unique }}"
+    state: present
+  become: true
+  when:
+    - linux_setup_dev_packages_resolved | length > 0
+    - not ansible_check_mode
+  tags: dev

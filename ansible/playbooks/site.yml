@@ -1,0 +1,52 @@
+---
+- name: Linux Setup
+  hosts: localhost
+  gather_facts: true
+
+  vars:
+    linux_setup_repo_root: "{{ playbook_dir }}/../.."
+    linux_setup_target_user: "{{ linux_setup_target_user | default(ansible_facts.user_id, true) }}"
+    linux_setup_target_home: "{{ linux_setup_target_home | default(ansible_facts.env.HOME, true) }}"
+
+  tasks:
+    - name: Run distro detection
+      ansible.builtin.include_role:
+        name: distro_facts
+      tags: always
+
+    - name: Run base packages role
+      ansible.builtin.include_role:
+        name: packages_base
+      tags: base
+
+    - name: Run dev packages role
+      ansible.builtin.include_role:
+        name: packages_dev
+      tags: dev
+
+    - name: Run nvim role
+      ansible.builtin.include_role:
+        name: nvim
+      tags: nvim
+
+    - name: Run fonts role
+      ansible.builtin.include_role:
+        name: fonts
+      when: not ansible_check_mode
+      tags: font
+
+    - name: Run desktop role
+      ansible.builtin.include_role:
+        name: desktop
+      tags: desktop
+
+    - name: Run fish role
+      ansible.builtin.include_role:
+        name: fish
+      when: not ansible_check_mode
+      tags: fish
+
+    - name: Run bash role
+      ansible.builtin.include_role:
+        name: bash
+      tags: bash

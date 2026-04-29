@@ -1,0 +1,26 @@
+---
+- name: Ensure bash target directory exists
+  ansible.builtin.file:
+    path: "{{ linux_setup_target_home }}"
+    state: directory
+    owner: "{{ linux_setup_target_user }}"
+    group: "{{ linux_setup_target_user }}"
+    mode: "0755"
+
+- name: Deploy .bashrc
+  ansible.builtin.copy:
+    src: "{{ linux_setup_bash_source_dir }}/bashrc"
+    dest: "{{ linux_setup_bashrc_target }}"
+    owner: "{{ linux_setup_target_user }}"
+    group: "{{ linux_setup_target_user }}"
+    mode: "0644"
+    backup: true
+
+- name: Deploy .bash_profile
+  ansible.builtin.copy:
+    src: "{{ linux_setup_bash_source_dir }}/bash_profile"
+    dest: "{{ linux_setup_bash_profile_target }}"
+    owner: "{{ linux_setup_target_user }}"
+    group: "{{ linux_setup_target_user }}"
+    mode: "0644"
+    backup: true

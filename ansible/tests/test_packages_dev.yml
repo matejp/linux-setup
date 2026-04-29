@@ -1,0 +1,58 @@
+---
+- name: Load packages_dev role defaults
+  ansible.builtin.include_vars:
+    file: "{{ playbook_dir }}/../roles/packages_dev/defaults/main.yml"
+
+- name: Verify packages_dev - dev package definitions exist
+  ansible.builtin.assert:
+    that:
+      - linux_setup_dev_packages is defined
+      - linux_setup_dev_packages is mapping
+    fail_msg: "Dev package definitions missing"
+    success_msg: "✓ Dev package definitions exist"
+
+- name: Verify packages_dev - default dev languages defined
+  ansible.builtin.assert:
+    that:
+      - linux_setup_default_dev_languages is defined
+      - linux_setup_default_dev_languages is sequence
+      - "'go' in linux_setup_default_dev_languages"
+      - "'c' in linux_setup_default_dev_languages"
+      - "'python' in linux_setup_default_dev_languages"
+    fail_msg: "Default dev languages not properly defined"
+    success_msg: "✓ Default dev languages: {{ linux_setup_default_dev_languages | join(', ') }}"
+
+- name: Test packages_dev role
+  ansible.builtin.include_role:
+    name: packages_dev
+
+- name: Verify packages_dev - dev languages were resolved
+  ansible.builtin.assert:
+    that:
+      - linux_setup_dev_languages_resolved is defined
+      - linux_setup_dev_languages_resolved | length > 0
+    fail_msg: "Dev languages were not resolved"
+    success_msg: "✓ Dev languages resolved: {{ linux_setup_dev_languages_resolved | join(', ') }}"
+
+- name: Verify packages_dev - dev packages were resolved
+  ansible.builtin.assert:
+    that:
+      - linux_setup_dev_packages_resolved is defined
+    fail_msg: "Dev packages were not resolved"
+    success_msg: "✓ Dev packages resolved"
+
+- name: Test custom dev languages
+  block:
+    - name: Test packages_dev role with custom languages
+      ansible.builtin.include_role:
+        name: packages_dev
+      vars:
+        linux_setup_dev_languages: ['go', 'python']
+    
+    - name: Verify custom languages resolved
+      ansible.builtin.assert:
+        that:
+          - "'go' in linux_setup_dev_languages_resolved"
+          - "'python' in linux_setup_dev_languages_resolved"
+          - linux_setup_dev_languages_resolved | length == 2
+        success_msg: "✓ Custom dev languages work correctly"

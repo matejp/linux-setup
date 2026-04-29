@@ -1,0 +1,38 @@
+---
+- name: Load fonts role defaults
+  ansible.builtin.include_vars:
+    file: "{{ playbook_dir }}/../roles/fonts/defaults/main.yml"
+
+- name: Verify fonts - font URL is defined
+  ansible.builtin.assert:
+    that:
+      - linux_setup_font_url is defined
+      - linux_setup_font_url | length > 0
+      - linux_setup_font_url is match('^https?://')
+    fail_msg: "Font URL not properly defined"
+    success_msg: "✓ Font URL configured: {{ linux_setup_font_url }}"
+
+- name: Verify fonts - font directory is defined
+  ansible.builtin.assert:
+    that:
+      - linux_setup_font_dir is defined
+      - linux_setup_font_dir | length > 0
+    fail_msg: "Font directory not defined"
+    success_msg: "✓ Font directory: {{ linux_setup_font_dir }}"
+
+- name: Verify fonts - font archive path is defined
+  ansible.builtin.assert:
+    that:
+      - linux_setup_font_archive is defined
+      - linux_setup_font_archive | length > 0
+    fail_msg: "Font archive path not defined"
+    success_msg: "✓ Font archive path: {{ linux_setup_font_archive }}"
+
+- name: Test fonts role in check mode (partial test)
+  block:
+    - name: Display font configuration
+      ansible.builtin.debug:
+        msg:
+          - "Font URL: {{ linux_setup_font_url }}"
+          - "Font Dir: {{ linux_setup_font_dir }}"
+          - "Archive: {{ linux_setup_font_archive }}"

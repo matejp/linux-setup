@@ -1,0 +1,55 @@
+---
+- name: Linux Setup Test Suite
+  hosts: localhost
+  gather_facts: true
+  
+  vars:
+    linux_setup_repo_root: "{{ playbook_dir }}/../.."
+    linux_setup_target_user: "{{ ansible_facts.user_id }}"
+    linux_setup_target_home: "{{ ansible_facts.env.HOME }}"
+    linux_setup_dev_languages: []  # Default from group_vars
+  
+  tasks:
+    - name: Test distro_facts role
+      ansible.builtin.include_tasks: test_distro_facts.yml
+      tags:
+        - distro_facts
+    
+    - name: Test packages_base role
+      ansible.builtin.include_tasks: test_packages_base.yml
+      tags:
+        - packages_base
+    
+    - name: Test packages_dev role
+      ansible.builtin.include_tasks: test_packages_dev.yml
+      tags:
+        - packages_dev
+    
+    - name: Test nvim role
+      ansible.builtin.include_tasks: test_nvim.yml
+      tags:
+        - nvim
+    
+    - name: Test fish role
+      ansible.builtin.include_tasks: test_fish.yml
+      tags:
+        - fish
+    
+    - name: Test bash role
+      ansible.builtin.include_tasks: test_bash.yml
+      tags:
+        - bash
+    
+    - name: Test fonts role
+      ansible.builtin.include_tasks: test_fonts.yml
+      tags:
+        - fonts
+    
+    - name: Test desktop role
+      ansible.builtin.include_tasks: test_desktop.yml
+      tags:
+        - desktop
+    
+    - name: All tests completed
+      ansible.builtin.debug:
+        msg: "✓ All tests passed successfully!"

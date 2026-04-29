@@ -1,28 +1,36 @@
-# Linux Setup - User Manual
+# Linux Setup
 
-A modular system configuration tool for fresh Linux installations. Supports Ubuntu, Debian, Fedora, RHEL, OpenSUSE, and Arch-based distributions.
+A modular system configuration tool for fresh Linux installations, powered by Ansible. Supports Ubuntu, Debian, Fedora, RHEL, OpenSUSE, and Arch-based distributions.
 
 ## Quick Start
 
 ```bash
+# Clone the repository
 git clone <repository-url> ~/linux-setup
 cd ~/linux-setup
-chmod +x setup.sh tests/*.sh
-sudo ./setup.sh --all
+
+# Install Ansible
+sudo apt install ansible-core  # Ubuntu/Debian
+# OR
+sudo dnf install ansible-core  # Fedora/RHEL
+
+# Install everything
+cd ansible
+ansible-playbook playbooks/site.yml --tags all
 ```
 
 ## Features
 
 - **Automatic Distribution Detection**: Identifies your Linux distribution and uses the correct package manager
-- **Modular Architecture**: Each component (packages, Neovim config, etc.) is independently testable
+- **Modular Architecture**: Each component is independently configurable and testable
 - **Base Packages**: htop, git, neovim, curl, wget
 - **Modern CLI Tools**: eza, bat, ripgrep, fd, fzf, zoxide, lazygit, btop, tldr, and more
 - **Development Tools**: Go, C/C++, and Python development environments
-- **Neovim Configuration**: Ready-to-use IDE setup with LSP, Treesitter, and DAP
+- **Neovim Configuration**: Minimal `config/nvim/init.lua` setup with statusline and ergonomic keybindings
 - **Desktop Settings**: GNOME configuration (dash-to-dock, etc.)
 - **Fish Shell**: Install fish, set as default shell, and deploy basic config
 - **Bash Configuration**: Best-practice `~/.bashrc` and `~/.bash_profile` with SSH agent, aliases, and git-aware prompt
-- **Packages**: Version-aware package filtering (e.g. lazygit skipped on Ubuntu < 26.04)
+- **Smart Package Filtering**: Version-aware package filtering (e.g. lazygit skipped on Ubuntu < 26.04)
 - **Fonts**: JetBrains Mono Nerd Font
 
 ## Supported Distributions
@@ -36,500 +44,419 @@ sudo ./setup.sh --all
 
 ## Usage
 
+All commands should be run from the `ansible/` directory:
+
+```bash
+cd ansible
+```
+
 ### Full Setup (All Components)
 
 ```bash
-sudo ./setup.sh --all
+ansible-playbook playbooks/site.yml --tags all
 ```
 
-### Install Base Packages Only
+### Individual Components
 
 ```bash
-sudo ./setup.sh --pkgs
+# Base packages only
+ansible-playbook playbooks/site.yml --tags base
+
+# Development tools (Go, C, Python)
+ansible-playbook playbooks/site.yml --tags dev
+
+# Neovim configuration
+ansible-playbook playbooks/site.yml --tags nvim
+
+# JetBrains Mono Nerd Font
+ansible-playbook playbooks/site.yml --tags font
+
+# Fish shell
+ansible-playbook playbooks/site.yml --tags fish
+
+# Bash configuration
+ansible-playbook playbooks/site.yml --tags bash
+
+# Desktop settings (GNOME)
+ansible-playbook playbooks/site.yml --tags desktop
 ```
 
-### Install Specific Development Tools
+### Multiple Components
 
 ```bash
-sudo ./setup.sh --dev go          # Go only
-sudo ./setup.sh --dev c           # C/C++ only
-sudo ./setup.sh --dev python      # Python only
-sudo ./setup.sh --dev go python   # Go and Python
+# Base packages + Neovim + Fish
+ansible-playbook playbooks/site.yml --tags base,nvim,fish
 ```
 
-### Install Neovim Configuration
+### Custom Development Languages
 
 ```bash
-sudo ./setup.sh --nvim
+# Install only Go and Python (not C)
+ansible-playbook playbooks/site.yml --tags dev \
+  -e linux_setup_dev_languages=go,python
 ```
-
-### Install JetBrains Mono Nerd Font
-
-```bash
-./setup.sh --font
-```
-
-### Apply Desktop Settings
-
-```bash
-./setup.sh --desktop
-```
-
-### Install Fish Shell
-
-```bash
-./setup.sh --fish
-```
-
-This will:
-1. Install fish via the system package manager
-2. Add fish to `/etc/shells`
-3. Set fish as the default shell (`chsh`)
-4. Deploy the fish configuration to `~/.config/fish`
-
-### Deploy Bash Configuration
-
-```bash
-./setup.sh --bash
-```
-
-This will:
-1. Back up any existing `~/.bashrc` and `~/.bash_profile`
-2. Deploy `config/bash/bashrc` → `~/.bashrc`
-3. Deploy `config/bash/bash_profile` → `~/.bash_profile`
 
 ### Detect Distribution
 
 ```bash
-./setup.sh --detect
+ansible-playbook playbooks/detect.yml
 ```
 
-### Dry Run (Preview)
+### Dry Run (Preview Changes)
 
 ```bash
-./setup.sh --all --dry-run
+ansible-playbook playbooks/site.yml --tags all --check
 ```
 
-### Force Distribution
+### Verbose Output
 
 ```bash
-./setup.sh --all --distro ubuntu
+ansible-playbook playbooks/site.yml --tags all -vvv
 ```
 
-### Echo Commands (Debug)
+## What Gets Installed
+
+### Base Packages (`--tags base`)
+
+**Core utilities:**
+- htop, btop - System monitors
+- git - Version control
+- neovim - Text editor
+- curl, wget - Download tools
+- jq - JSON processor
+
+**Modern CLI tools:**
+- eza - Modern `ls` replacement
+- bat - `cat` with syntax highlighting
+- ripgrep - Fast text search
+- fd - Fast `find` replacement
+- fzf - Fuzzy finder
+- zoxide - Smart `cd` replacement
+- lazygit - Git TUI
+- tldr - Simplified man pages
+- httpie - HTTP client
+- trash-cli - Safe `rm` replacement
+- duf - Disk usage tool
+- fish - Modern shell
+
+### Development Tools (`--tags dev`)
+
+**Go:**
+- Go compiler and tools
+- gopls (LSP)
+- delve (debugger)
+
+**C/C++:**
+- gcc, g++, make, cmake
+- clang, clangd (LSP)
+- gdb (debugger)
+- valgrind
+
+**Python:**
+- python3, pip
+- python3-venv
+- pylint, black, mypy
+- python-lsp-server
+
+### Neovim Configuration (`--tags nvim`)
+
+Deploys a minimal, plugin-free Neovim configuration:
+- **Location**: `~/.config/nvim/init.lua`
+- **Features**: Statusline, ergonomic keybindings, basic settings
+- **Backup**: Existing config backed up to `~/.config/nvim.backup.<timestamp>`
+
+### Fish Shell (`--tags fish`)
+
+1. Installs fish via package manager
+2. Registers fish in `/etc/shells`
+3. Sets fish as default shell
+4. Deploys configuration to `~/.config/fish/`
+   - `config.fish` - Main config
+   - `conf.d/ssh_agent.fish` - SSH agent setup
+
+### Bash Configuration (`--tags bash`)
+
+Deploys best-practice bash configuration:
+- **`~/.bashrc`**: Aliases, functions, prompt, SSH agent
+- **`~/.bash_profile`**: Login shell entry point
+- **Backup**: Existing files backed up automatically
+
+### Fonts (`--tags font`)
+
+Installs JetBrains Mono Nerd Font:
+- **Location**: `~/.local/share/fonts/`
+- **Source**: Official Nerd Fonts release
+- Font cache automatically refreshed
+
+### Desktop Settings (`--tags desktop`)
+
+Applies GNOME desktop settings (if GNOME available):
+- dash-to-dock click action: minimize
+
+## Configuration
+
+### Default Variables
+
+Core variables are defined in `ansible/group_vars/all.yml`:
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `linux_setup_target_user` | Current user | Target user for configs |
+| `linux_setup_target_home` | Current home | Target home directory |
+| `linux_setup_dev_languages` | `['go', 'c', 'python']` | Dev languages to install |
+
+### Overriding Variables
+
+Use `-e` flag:
 
 ```bash
-./setup.sh --all --echo        # Print all commands before executing
-./setup.sh --all -x             # Short form
+# Custom dev languages
+ansible-playbook playbooks/site.yml --tags dev \
+  -e linux_setup_dev_languages=go,python
+
+# Force specific distribution
+ansible-playbook playbooks/site.yml --tags all \
+  -e linux_setup_force_distro=ubuntu
 ```
 
-### Log Commands to File
-
-```bash
-./setup.sh --all --log setup.log   # Log all commands to file
-./setup.sh --all -l setup.log      # Short form
-```
-
-### Combined Options
-
-```bash
-./setup.sh --all --dry-run --echo    # Dry run with command echo
-./setup.sh --all --log full.log      # Log everything to file
-```
-
-## Command Line Options
-
-| Option | Description |
-|--------|-------------|
-| `-h, --help` | Show help message |
-| `-d, --distro DISTRO` | Force specific distribution |
-| `-p, --pkgs` | Install base packages only |
-| `-e, --dev LANG` | Install dev tools for language |
-| `-n, --nvim` | Install Neovim configuration |
-| `-f, --font` | Install JetBrains Mono Nerd Font |
-| `-k, --desktop` | Apply desktop settings (GNOME) |
-| `-s, --fish` | Install fish shell and set as default |
-| `-b, --bash` | Deploy bash configuration |
-| `-a, --all` | Install everything |
-| `-v, --verbose` | Enable verbose output |
-| `-t, --dry-run` | Show what would be done without executing |
-| `-x, --echo` | Echo all commands before executing |
-| `-l, --log FILE` | Log all commands to FILE |
-| `--detect` | Detect and show distribution |
-
-## Library Scripts
-
-### lib/distro.sh
-
-Distribution detection and package management utilities.
-
-```bash
-# Detect current distribution
-./lib/distro.sh --detect
-
-# Show full distribution info
-./lib/distro.sh --info
-
-# Get package manager for distribution
-./lib/distro.sh --pm
-```
-
-### lib/packages.sh
-
-Package management utilities.
-
-```bash
-# List all available packages
-./lib/packages.sh --list
-
-# Install base packages
-./lib/packages.sh --base
-
-# Install development packages
-./lib/packages.sh --dev go c python
-```
-
-### lib/nvim.sh
-
-Neovim configuration management.
-
-```bash
-# Install Neovim config
-./lib/nvim.sh --install
-
-# Verify installation
-./lib/nvim.sh --verify
-
-# Remove configuration
-./lib/nvim.sh --remove
-
-# Check dependencies
-./lib/nvim.sh --deps
-```
+**Note**: Component selection is controlled by `--tags`, not by variables.
 
 ## Testing
 
-Run the test suite:
+Run the test suite to verify all roles:
 
 ```bash
+cd ansible
+
 # Run all tests
-./tests/test.sh
+ansible-playbook tests/test.yml
 
 # Run specific test
-./tests/test_distro.sh
-./tests/test_packages.sh
+ansible-playbook tests/test.yml --tags packages
 
-# Run single test case
-bash -c 'source ../lib/distro.sh && get_package_manager ubuntu'
+# Use test runner script
+./tests/run_tests.sh
 ```
 
-### Running a Single Test
+Tests verify:
+- Distribution detection works correctly
+- Package definitions are valid
+- Config files exist in source directories
+- Roles run successfully in check mode
+- Variables are properly defined
 
-To run a specific test from the test suite:
+## Directory Structure
+
+```
+linux-setup/
+├── ansible/
+│   ├── ansible.cfg              # Ansible configuration
+│   ├── group_vars/              # Global variables
+│   │   └── all.yml
+│   ├── inventories/             # Inventory files
+│   │   └── localhost.yml
+│   ├── playbooks/               # Playbooks
+│   │   ├── site.yml             # Main playbook
+│   │   └── detect.yml           # Distribution detection
+│   ├── roles/                   # Ansible roles
+│   │   ├── distro_facts/        # Distribution detection
+│   │   ├── packages_base/       # Base package installation
+│   │   ├── packages_dev/        # Dev tools installation
+│   │   ├── nvim/                # Neovim config
+│   │   ├── fonts/               # Font installation
+│   │   ├── fish/                # Fish shell
+│   │   ├── bash/                # Bash config
+│   │   └── desktop/             # Desktop settings
+│   ├── tests/                   # Test suite
+│   │   ├── test.yml             # Main test runner
+│   │   ├── test_*.yml           # Role tests
+│   │   └── run_tests.sh         # Test script
+│   └── README.md                # Quick reference
+├── config/                      # Source configurations
+│   ├── nvim/                    # Neovim config files
+│   ├── fish/                    # Fish config files
+│   └── bash/                    # Bash config files
+└── docs/                        # Documentation
+    ├── MANUAL.md                # Detailed manual
+    └── FILEMAP.md               # File reference
+```
+
+## Architecture
+
+```
+┌─────────────────────────────────────────┐
+│      ansible-playbook (user runs)       │
+│         playbooks/site.yml               │
+├─────────────────────────────────────────┤
+│           Ansible Roles                  │
+│  distro_facts → packages → nvim →       │
+│  fonts → fish → bash → desktop           │
+├─────────────────────────────────────────┤
+│        Source Configurations             │
+│      config/nvim, config/fish, etc       │
+└─────────────────────────────────────────┘
+```
+
+**Flow:**
+1. User runs `ansible-playbook` with desired tags
+2. `distro_facts` role detects distribution and package manager
+3. Selected roles execute based on tags
+4. Configurations deployed from `config/` to target directories
+
+## Advanced Usage
+
+### Customizing Package Lists
+
+Edit `ansible/roles/packages/defaults/main.yml`:
+
+```yaml
+linux_setup_base_packages:
+  apt:
+    - htop
+    - git
+    - your-custom-package
+```
+
+### Adding a New Distribution
+
+1. Add mapping in `ansible/roles/distro_facts/defaults/main.yml`
+2. Add package lists in `ansible/roles/packages/defaults/main.yml`
+3. Test with `ansible-playbook playbooks/detect.yml`
+
+### Syntax Validation
 
 ```bash
-# Run just the shellcheck tests
-./tests/test.sh 2>&1 | grep -A5 "Linting"
+# Check playbook syntax
+ansible-playbook playbooks/site.yml --syntax-check
 
-# Run a specific test function
-bash -c '
-    source ../lib/distro.sh
-    result=$(get_package_manager "ubuntu")
-    [[ "$result" == "apt" ]] && echo "PASS" || echo "FAIL"
-'
-```
+# Lint with ansible-lint (if installed)
+ansible-lint playbooks/*.yml roles/*/tasks/*.yml
 
-## Neovim Configuration
-
-This is a **No Plugins** Neovim configuration using only built-in features. It provides a clean, fast editing experience without external dependencies.
-
-### Features
-
-- **Custom Statusline**: Mode indicator, spell check status, file info, line/column, file type
-- **Syntax Highlighting**: Built-in syntax support
-- **Smart Editing**: Auto-indent, smart tab, spell checking
-- **File Explorer**: Netrw-based file browser
-- **Terminal Integration**: Embedded terminal support
-
-### Settings
-
-| Setting | Value |
-|---------|-------|
-| Leader key | Space |
-| Tab size | 4 spaces |
-| Encoding | UTF-8 |
-| Line numbers | Relative |
-| Mouse | Enabled |
-
-### Keybindings
-
-#### General
-| Key | Action |
-|-----|--------|
-| `<Esc>` | Clear search highlight |
-| `jj` | Escape insert mode |
-| `Q` | Format paragraph |
-| `<C-s>` | Save file |
-| `<C-q>` | Save and quit |
-
-#### File Explorer
-| Key | Action |
-|-----|--------|
-| `<Leader>e` | Open Netrw (left panel) |
-| `<Leader>o` | Open Netrw |
-
-#### Window Navigation
-| Key | Action |
-|-----|--------|
-| `<C-h>` | Move to left window |
-| `<C-j>` | Move to below window |
-| `<C-k>` | Move to above window |
-| `<C-l>` | Move to right window |
-| `<Leader>y` | Split horizontally |
-| `<Leader>x` | Split vertically |
-
-#### Tab Navigation
-| Key | Action |
-|-----|--------|
-| `<Leader>t` | Next tab |
-| `<Leader>c` | New tab |
-| `<C-t>` | Open terminal in new tab |
-
-#### Text Manipulation
-| Key | Action |
-|-----|--------|
-| `<Leader>a` | Select all |
-| `J` | Move line down (visual) |
-| `K` | Move line up (visual) |
-| `<` | Indent left (visual) |
-| `>` | Indent right (visual) |
-| `x` | Delete character (no register) |
-
-#### Terminal
-| Key | Action |
-|-----|--------|
-| `<C-t>` | Open terminal |
-| `<Esc>` | Exit terminal mode |
-| `<C-q>` | Exit terminal |
-
-#### Special Features
-| Key | Action |
-|-----|--------|
-| `<Leader>ht` | Toggle Hebrew mode (RTL) |
-| `<Leader>hx` | Convert to hex dump |
-| `<Leader>r` | Show registers |
-| `<C-z>` | Toggle spell check |
-
-### Custom Functions
-
-- **ToggleHebrew()**: Switch between LTR and RTL text direction
-- **DoHex()**: Convert buffer to hexadecimal dump
-- **UndoHex()**: Reverse hex dump back to text
-
-### First Run
-
-After installation, open Neovim:
-
-```bash
-nvim
-```
-
-You should see: `Neovim configured - No Plugins Edition`
-
-### GUI Font
-
-When running in GUI mode (gvim/Neovim Qt), the font is automatically set to JetBrains Mono Nerd Font size 12.
-
-## Project Structure
-
-```
-.
-├── AGENTS.md              # Agent instructions
-├── README.md             # This file
-├── setup.sh              # Main setup script
-├── lib/
-│   ├── distro.sh         # Distribution detection
-│   ├── packages.sh       # Package management
-│   ├── nvim.sh           # Neovim configuration
-│   ├── fonts.sh          # Font installation
-│   ├── desktop.sh        # Desktop settings
-│   ├── fish.sh           # Fish shell setup
-│   └── bash.sh           # Bash configuration deployment
-├── config/
-│   ├── nvim/
-│   │   └── init.lua      # Neovim entry point
-│   ├── fish/
-│   │   ├── config.fish   # Fish shell configuration
-│   │   └── conf.d/
-│   │       └── ssh_agent.fish  # SSH agent (auto-loaded by fish)
-│   └── bash/
-│       ├── bashrc        # Bash interactive shell config
-│       └── bash_profile  # Bash login shell entry point
-├── tests/
-│   ├── test.sh           # Main test suite
-│   ├── test_distro.sh    # Distro lib tests
-│   └── test_packages.sh # Packages lib tests
-└── docs/
-    ├── MANUAL.md         # Detailed manual
-    └── FILEMAP.md        # File documentation
+# Validate YAML
+yamllint ansible/**/*.yml
 ```
 
 ## Troubleshooting
 
+### Permission Errors
+
+Most operations require sudo. Ansible will prompt when needed, or use:
+
+```bash
+ansible-playbook playbooks/site.yml --tags all --ask-become-pass
+```
+
+### Distribution Not Detected
+
+Force a specific distribution:
+
+```bash
+ansible-playbook playbooks/site.yml --tags all \
+  -e linux_setup_force_distro=ubuntu
+```
+
 ### Package Installation Fails
 
-1. Update package lists first:
+1. Update package cache first:
    ```bash
-   sudo apt update    # or dnf check-update, etc.
+   sudo apt update        # Ubuntu/Debian
+   sudo dnf check-update  # Fedora
    ```
 
-2. Check if the package name differs for your distribution
-
-### Neovim Plugins Not Loading
-
-1. Check Neovim version (requires 0.8+):
+2. Check package availability:
    ```bash
-   nvim --version
+   apt search <package>   # Ubuntu/Debian
+   dnf search <package>   # Fedora
    ```
 
-2. Update plugins:
-   ```vim
-   :Lazy sync
+3. Run with verbose output:
+   ```bash
+   ansible-playbook playbooks/site.yml --tags base -vvv
    ```
 
-3. Check for errors:
-   ```vim
-   :Lazy debug
-   ```
+### Neovim Config Issues
 
-### LSP Not Working
+If Neovim doesn't work after installation:
 
-1. Install Mason packages:
-   ```vim
-   :MasonInstall gopls clangd pyright
-   ```
+1. Check Neovim version: `nvim --version` (requires 0.8+)
+2. Check config syntax: `nvim --headless +quit`
+3. Restore backup: `mv ~/.config/nvim.backup.* ~/.config/nvim`
 
-2. Check LSP status:
-   ```vim
-   :LspInfo
-   ```
+## Configuration Files
 
-## Extending the Setup
+### Neovim (`~/.config/nvim/init.lua`)
 
-### Adding a New Distribution
+Minimal configuration with:
+- Line numbers, relative numbers
+- Smart indentation (2 spaces)
+- Search highlighting
+- Custom statusline
+- Ergonomic keybindings
 
-Edit `lib/distro.sh`:
+### Fish (`~/.config/fish/`)
 
-```bash
-get_package_manager() {
-    local distro="$1"
-    case "$distro" in
-        # ... existing cases ...
-        your-distro)
-            echo "your-pm"
-            ;;
-    esac
-}
-```
+- `config.fish`: Aliases, environment variables
+- `conf.d/ssh_agent.fish`: SSH agent auto-start
 
-### Adding New Packages
+### Bash (`~/`)
 
-Edit `lib/packages.sh`:
+- `.bashrc`: Interactive shell config, aliases, prompt
+- `.bash_profile`: Login shell entry point
 
-```bash
-# Add to DISTRO_PACKAGES
-DISTRO_PACKAGES[your-pm]="pkg1 pkg2 pkg3"
+## Security Considerations
 
-# Add development packages
-DEV_PACKAGES_YOUR_PM[go]="golang"
-```
+- No secrets or credentials stored in repository
+- All files deployed with appropriate permissions (644 for configs, 755 for dirs)
+- Existing configurations backed up before overwriting
+- Package installation requires sudo (as expected)
+- Downloads verified from official sources
 
-### Adding New Languages
+## Contributing
 
-Edit `config/nvim/lua/user/plugins.lua` to add LSP and Treesitter support.
-
-### lib/desktop.sh
-
-Desktop configuration management.
-
-```bash
-# Apply GNOME settings
-./lib/desktop.sh
-```
-
-### lib/fish.sh
-
-Fish shell installation and configuration.
-
-```bash
-./lib/fish.sh --setup    # Full setup (install + default shell + config)
-./lib/fish.sh --install  # Install fish only
-./lib/fish.sh --default  # Set fish as default shell only
-./lib/fish.sh --config   # Deploy fish config only
-```
-
-### lib/bash.sh
-
-Bash configuration deployment.
-
-```bash
-./lib/bash.sh --setup    # Deploy ~/.bashrc and ~/.bash_profile
-./lib/bash.sh --install  # Same as --setup with optional source dir
-```
-
-## Fish Shell Configuration
-
-The fish configuration (`config/fish/config.fish`) includes:
-
-- Suppressed greeting
-- `$EDITOR` / `$VISUAL` set to `nvim`
-- `~/.local/bin` and `~/bin` added to PATH
-- Aliases for modern CLI tools (eza, bat, fd, rg, btop, zoxide) - only active if the tool is installed
-- General aliases (`..`, `mkdir`, `df`, `du`, `free`)
-- Git aliases (`g`, `gs`, `ga`, `gc`, `gp`, `gl`, `gd`)
-- Safety aliases (`rm -i`, `cp -i`, `mv -i`)
-- Starship prompt integration (if starship is installed)
-
-SSH agent is configured separately in `config/fish/conf.d/ssh_agent.fish` (auto-loaded by fish).
-
-## Bash Configuration
-
-The bash configuration (`config/bash/bashrc`) includes:
-
-- Persistent 10,000 entry history with timestamps, no duplicates, cross-session sync
-- Shell options: `autocd`, `globstar`, `cdspell`, `checkwinsize`
-- `$EDITOR` / `$VISUAL` set to `nvim`
-- `~/.local/bin` and `~/bin` added to PATH
-- Git-aware coloured prompt with exit code indicator
-- Starship prompt integration (if starship is installed, overrides default prompt)
-- SSH agent started once per login session; all private keys in `~/.ssh/` loaded automatically
-- Same modern CLI tool aliases as fish config
-- Git aliases and safety aliases (`rm -i`, `cp -i`, `mv -i`)
-- Bash completion sourced if available
-
-`config/bash/bash_profile` sources `~/.bashrc`, ensuring the same config applies in both login shells (TTY, SSH) and interactive non-login shells (terminal emulators).
-
-### SSH Key Loading (bash and fish)
-
-Both configurations automatically:
-1. Start `ssh-agent` if not already running, persisting the socket to `~/.ssh/agent-env`
-2. Re-attach to the existing agent on subsequent shell opens in the same session
-3. Scan `~/.ssh/` for private keys (files with a matching `.pub`, or matching `id_*` / `*_rsa` / `*_ed25519` / `*_ecdsa` patterns)
-4. Add each key to the agent only if not already loaded (checked by fingerprint)
-
-## Automatic Releases
-
-The project uses GitHub Actions with [git-auto-semver](https://github.com/marketplace/actions/git-automatic-semantic-versioning) for automatic versioning on every push to main:
-
-- **Automatic version bump** based on commit messages (patch for fixes, minor for features)
-- **Automatic tag creation** following semantic versioning (v0.1.0, v0.1.1, etc.)
-- **Automatic GitHub Release** creation with release notes
-
-### Commit Message Convention
-
-- `fix:` or no prefix → patch bump (0.1.0 → 0.1.1)
-- `feat:` → minor bump (0.1.0 → 0.2.0)
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Update tests: `ansible/tests/test_<role>.yml`
+5. Run tests: `cd ansible && ansible-playbook tests/test.yml`
+6. Test in check mode: `ansible-playbook playbooks/site.yml --check`
+7. Submit a pull request
 
 ## License
 
-MIT License
+See repository for license information.
+
+## Quick Reference Card
+
+```bash
+# Install Ansible
+sudo apt install ansible-core  # Ubuntu/Debian
+
+# Full setup
+cd ansible && ansible-playbook playbooks/site.yml --tags all
+
+# Individual components
+ansible-playbook playbooks/site.yml --tags base      # Base packages
+ansible-playbook playbooks/site.yml --tags dev       # Dev tools
+ansible-playbook playbooks/site.yml --tags nvim      # Neovim
+ansible-playbook playbooks/site.yml --tags fish      # Fish shell
+ansible-playbook playbooks/site.yml --tags bash      # Bash config
+ansible-playbook playbooks/site.yml --tags font      # Font
+ansible-playbook playbooks/site.yml --tags desktop   # GNOME settings
+
+# Multiple components
+ansible-playbook playbooks/site.yml --tags base,nvim,fish
+
+# Dry run
+ansible-playbook playbooks/site.yml --tags all --check
+
+# Run tests
+ansible-playbook tests/test.yml
+
+# Detect distribution
+ansible-playbook playbooks/detect.yml
+```
+
+For more details, see:
+- `ansible/README.md` - Quick Ansible reference
+- `docs/MANUAL.md` - Detailed manual
+- `docs/FILEMAP.md` - File documentation

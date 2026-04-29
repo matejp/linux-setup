@@ -1,0 +1,35 @@
+---
+- name: Run distro_facts role
+  ansible.builtin.include_role:
+    name: distro_facts
+
+- name: Verify distro_facts - distribution detected
+  ansible.builtin.assert:
+    that:
+      - linux_setup_distro_id is defined
+      - linux_setup_distro_id | length > 0
+    fail_msg: "Distribution ID not detected"
+    success_msg: "✓ Distribution detected: {{ linux_setup_distro_id }}"
+
+- name: Verify distro_facts - package manager detected
+  ansible.builtin.assert:
+    that:
+      - linux_setup_package_manager is defined
+      - linux_setup_package_manager in ['apt', 'dnf', 'zypper', 'pacman']
+    fail_msg: "Package manager not properly detected: {{ linux_setup_package_manager }}"
+    success_msg: "✓ Package manager detected: {{ linux_setup_package_manager }}"
+
+- name: Verify distro_facts - Ubuntu version detection
+  ansible.builtin.assert:
+    that:
+      - linux_setup_ubuntu_version is defined
+    fail_msg: "Ubuntu version variable not set"
+    success_msg: "✓ Ubuntu version variable set: {{ linux_setup_ubuntu_version | default('N/A') }}"
+  when: linux_setup_distro_id == 'ubuntu'
+
+- name: Display detected distribution info
+  ansible.builtin.debug:
+    msg:
+      - "Distribution: {{ linux_setup_distro_id }}"
+      - "Package Manager: {{ linux_setup_package_manager }}"
+      - "Ubuntu Version: {{ linux_setup_ubuntu_version | default('N/A') }}"

@@ -1,0 +1,21 @@
+---
+galaxy_info:
+  role_name: nvim
+  description: Deploy Neovim configuration
+  license: MIT
+  min_ansible_version: "2.14"
+  platforms:
+    - name: EL
+      versions: ["all"]
+    - name: Debian
+      versions: ["all"]
+    - name: ArchLinux
+      versions: ["all"]
+  galaxy_tags:
+    - neovim
+    - nvim
+    - dotfiles
+
+dependencies:
+  - role: distro_facts
+    tags: always

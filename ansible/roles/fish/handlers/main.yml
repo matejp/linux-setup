@@ -1,0 +1,4 @@
+---
+- name: Reload shell configuration
+  ansible.builtin.debug:
+    msg: "Shell configuration updated. User should restart terminal or run 'source ~/.config/fish/config.fish'"

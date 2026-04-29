@@ -1,0 +1,28 @@
+---
+- name: Load desktop role defaults
+  ansible.builtin.include_vars:
+    file: "{{ playbook_dir }}/../roles/desktop/defaults/main.yml"
+
+- name: Verify desktop - GNOME click action is defined
+  ansible.builtin.assert:
+    that:
+      - linux_setup_gnome_click_action is defined
+      - linux_setup_gnome_click_action | length > 0
+    fail_msg: "GNOME click action not defined"
+    success_msg: "✓ GNOME click action: {{ linux_setup_gnome_click_action }}"
+
+- name: Check if gsettings is available
+  ansible.builtin.command:
+    cmd: command -v gsettings
+  register: gsettings_check
+  changed_when: false
+  failed_when: false
+
+- name: Display gsettings availability
+  ansible.builtin.debug:
+    msg: "{{ 'gsettings available' if gsettings_check.rc == 0 else 'gsettings not available (expected on non-GNOME systems)' }}"
+
+- name: Test desktop role (if GNOME available)
+  ansible.builtin.include_role:
+    name: desktop
+  when: gsettings_check.rc == 0

@@ -1,0 +1,50 @@
+linux_setup_default_dev_languages:
+  - go
+  - c
+  - python
+
+linux_setup_dev_packages:
+  apt:
+    go:
+      - golang
+      - golang-go
+    c:
+      - build-essential
+      - gdb
+      - lldb
+    python:
+      - python3
+      - python3-pip
+      - python3-venv
+  dnf:
+    go:
+      - golang
+    c:
+      - gcc
+      - gcc-gdb
+      - lldb
+    python:
+      - python3
+      - python3-pip
+      - python3-venv
+  zypper:
+    go:
+      - go
+      - golang
+    c:
+      - patterns-devel-base-devel_basis
+    python:
+      - python3
+      - python3-pip
+      - python3-venv
+  pacman:
+    go:
+      - go
+    c:
+      - base-devel
+      - gdb
+      - lldb
+    python:
+      - python
+      - python-pip
+      - python-virtualenv

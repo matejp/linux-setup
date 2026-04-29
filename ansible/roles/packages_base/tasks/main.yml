@@ -1,0 +1,26 @@
+---
+- name: Resolve base package list
+  ansible.builtin.set_fact:
+    linux_setup_base_packages_resolved: "{{ linux_setup_base_packages[linux_setup_package_manager] | default([]) }}"
+  tags: base
+
+- name: Drop lazygit on Ubuntu prior to 26.04
+  ansible.builtin.set_fact:
+    linux_setup_base_packages_resolved: >-
+      {{ linux_setup_base_packages_resolved
+      | reject('equalto', 'lazygit')
+      | list }}
+  when:
+    - linux_setup_distro_id == 'ubuntu'
+    - linux_setup_ubuntu_version is version('26.04', '<')
+  tags: base
+
+- name: Install base packages
+  ansible.builtin.package:
+    name: "{{ linux_setup_base_packages_resolved }}"
+    state: present
+  become: true
+  when:
+    - linux_setup_base_packages_resolved | length > 0
+    - not ansible_check_mode
+  tags: base

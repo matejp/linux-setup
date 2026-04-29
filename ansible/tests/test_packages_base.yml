@@ -1,0 +1,39 @@
+---
+- name: Load packages_base role defaults
+  ansible.builtin.include_vars:
+    file: "{{ playbook_dir }}/../roles/packages_base/defaults/main.yml"
+
+- name: Verify packages_base - base package definitions exist
+  ansible.builtin.assert:
+    that:
+      - linux_setup_base_packages is defined
+      - linux_setup_base_packages is mapping
+      - linux_setup_base_packages.apt is defined
+      - linux_setup_base_packages.dnf is defined
+      - linux_setup_base_packages.zypper is defined
+      - linux_setup_base_packages.pacman is defined
+    fail_msg: "Base package definitions are missing or invalid"
+    success_msg: "✓ Base package definitions exist for all package managers"
+
+- name: Test packages_base role
+  ansible.builtin.include_role:
+    name: packages_base
+
+- name: Verify packages_base - base packages were resolved
+  ansible.builtin.assert:
+    that:
+      - linux_setup_base_packages_resolved is defined
+      - linux_setup_base_packages_resolved | length > 0
+    fail_msg: "Base packages were not resolved"
+    success_msg: "✓ Base packages resolved: {{ linux_setup_base_packages_resolved | length }} packages"
+
+- name: Test Ubuntu version filtering (if Ubuntu)
+  block:
+    - name: Verify lazygit filtering on old Ubuntu
+      ansible.builtin.assert:
+        that:
+          - "'lazygit' not in linux_setup_base_packages_resolved"
+        fail_msg: "lazygit should be filtered on Ubuntu < 26.04"
+        success_msg: "✓ lazygit correctly filtered on Ubuntu {{ linux_setup_ubuntu_version }}"
+      when: linux_setup_ubuntu_version is version('26.04', '<')
+  when: linux_setup_distro_id == 'ubuntu'

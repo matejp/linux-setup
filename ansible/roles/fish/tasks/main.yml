@@ -1,0 +1,62 @@
+---
+- name: Install fish package
+  ansible.builtin.package:
+    name: fish
+    state: present
+  become: true
+
+- name: Locate fish binary
+  ansible.builtin.command:
+    cmd: command -v fish
+  register: linux_setup_fish_binary
+  changed_when: false
+
+- name: Register fish in /etc/shells
+  ansible.builtin.lineinfile:
+    path: /etc/shells
+    line: "{{ linux_setup_fish_binary.stdout }}"
+    state: present
+    insertafter: EOF
+  become: true
+
+- name: Ensure fish config directory exists
+  ansible.builtin.file:
+    path: "{{ linux_setup_target_home }}/.config"
+    state: directory
+    owner: "{{ linux_setup_target_user }}"
+    group: "{{ linux_setup_target_user }}"
+    mode: "0755"
+
+- name: Backup old fish configuration
+  ansible.builtin.stat:
+    path: "{{ linux_setup_fish_config_target }}"
+  register: linux_setup_existing_fish_config
+
+- name: Check if fish backup already exists
+  ansible.builtin.stat:
+    path: "{{ linux_setup_fish_config_target }}{{ linux_setup_fish_backup_suffix }}"
+  register: linux_setup_existing_fish_backup
+  when: linux_setup_existing_fish_config.stat.exists
+
+- name: Move existing fish configuration out of the way
+  ansible.builtin.command:
+    cmd: mv "{{ linux_setup_fish_config_target }}" "{{ linux_setup_fish_config_target }}{{ linux_setup_fish_backup_suffix }}"
+  when:
+    - linux_setup_existing_fish_config.stat.exists
+    - not linux_setup_existing_fish_backup.stat.exists
+
+- name: Deploy fish configuration
+  ansible.builtin.copy:
+    src: "{{ linux_setup_fish_config_source }}/"
+    dest: "{{ linux_setup_fish_config_target }}"
+    owner: "{{ linux_setup_target_user }}"
+    group: "{{ linux_setup_target_user }}"
+    mode: "0644"
+  notify: Reload shell configuration
+
+- name: Set fish as default shell for target user
+  ansible.builtin.user:
+    name: "{{ linux_setup_target_user }}"
+    shell: "{{ linux_setup_fish_binary.stdout }}"
+  become: true
+  notify: Reload shell configuration

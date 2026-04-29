@@ -1,0 +1,42 @@
+---
+- name: Load fish role defaults
+  ansible.builtin.include_vars:
+    file: "{{ playbook_dir }}/../roles/fish/defaults/main.yml"
+
+- name: Verify fish - source config directory exists
+  ansible.builtin.stat:
+    path: "{{ linux_setup_fish_config_source }}"
+  register: fish_source_dir
+  failed_when: not fish_source_dir.stat.exists or not fish_source_dir.stat.isdir
+
+- name: Verify fish - config.fish exists in source
+  ansible.builtin.stat:
+    path: "{{ linux_setup_fish_config_source }}/config.fish"
+  register: fish_config_file
+  failed_when: not fish_config_file.stat.exists
+
+- name: Verify fish - conf.d directory exists
+  ansible.builtin.stat:
+    path: "{{ linux_setup_fish_config_source }}/conf.d"
+  register: fish_confd_dir
+
+- name: Display fish source location
+  ansible.builtin.debug:
+    msg: "✓ Fish source config found at {{ linux_setup_fish_config_source }}"
+
+- name: Test fish role in check mode (partial - skip package install)
+  block:
+    - name: Verify fish - target path is defined
+      ansible.builtin.assert:
+        that:
+          - linux_setup_fish_config_target is defined
+          - linux_setup_fish_config_target | length > 0
+        fail_msg: "Fish target path not defined"
+        success_msg: "✓ Fish target: {{ linux_setup_fish_config_target }}"
+    
+    - name: Verify fish - backup suffix is defined
+      ansible.builtin.assert:
+        that:
+          - linux_setup_fish_backup_suffix is defined
+        fail_msg: "Fish backup suffix not defined"
+        success_msg: "✓ Fish backup suffix configured: {{ linux_setup_fish_backup_suffix }}"

@@ -1,0 +1,46 @@
+---
+- name: Load bash role defaults
+  ansible.builtin.include_vars:
+    file: "{{ playbook_dir }}/../roles/bash/defaults/main.yml"
+
+- name: Verify bash - source config directory exists
+  ansible.builtin.stat:
+    path: "{{ linux_setup_bash_source_dir }}"
+  register: bash_source_dir
+  failed_when: not bash_source_dir.stat.exists or not bash_source_dir.stat.isdir
+
+- name: Verify bash - bashrc exists in source
+  ansible.builtin.stat:
+    path: "{{ linux_setup_bash_source_dir }}/bashrc"
+  register: bash_bashrc_file
+  failed_when: not bash_bashrc_file.stat.exists
+
+- name: Verify bash - bash_profile exists in source
+  ansible.builtin.stat:
+    path: "{{ linux_setup_bash_source_dir }}/bash_profile"
+  register: bash_profile_file
+  failed_when: not bash_profile_file.stat.exists
+
+- name: Display bash source location
+  ansible.builtin.debug:
+    msg: "✓ Bash source config found at {{ linux_setup_bash_source_dir }}"
+
+- name: Test bash role
+  ansible.builtin.include_role:
+    name: bash
+
+- name: Verify bash - bashrc target is defined
+  ansible.builtin.assert:
+    that:
+      - linux_setup_bashrc_target is defined
+      - linux_setup_bashrc_target | length > 0
+    fail_msg: "Bashrc target path not defined"
+    success_msg: "✓ Bashrc target: {{ linux_setup_bashrc_target }}"
+
+- name: Verify bash - bash_profile target is defined
+  ansible.builtin.assert:
+    that:
+      - linux_setup_bash_profile_target is defined
+      - linux_setup_bash_profile_target | length > 0
+    fail_msg: "Bash_profile target path not defined"
+    success_msg: "✓ Bash_profile target: {{ linux_setup_bash_profile_target }}"

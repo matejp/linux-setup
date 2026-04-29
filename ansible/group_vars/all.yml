@@ -1,0 +1,12 @@
+linux_setup_dev_languages: []
+linux_setup_force_distro: ""
+linux_setup_repo_root: ""
+linux_setup_target_user: ""
+linux_setup_target_home: ""
+linux_setup_log_file: ""
+
+linux_setup_supported_package_managers:
+  - apt
+  - dnf
+  - zypper
+  - pacman

@@ -1,0 +1,39 @@
+---
+- name: Load nvim role defaults
+  ansible.builtin.include_vars:
+    file: "{{ playbook_dir }}/../roles/nvim/defaults/main.yml"
+
+- name: Verify nvim - source config directory exists
+  ansible.builtin.stat:
+    path: "{{ linux_setup_nvim_source }}"
+  register: nvim_source_dir
+  failed_when: not nvim_source_dir.stat.exists or not nvim_source_dir.stat.isdir
+
+- name: Verify nvim - init.lua exists in source
+  ansible.builtin.stat:
+    path: "{{ linux_setup_nvim_source }}/init.lua"
+  register: nvim_init_file
+  failed_when: not nvim_init_file.stat.exists
+
+- name: Display nvim source location
+  ansible.builtin.debug:
+    msg: "✓ Neovim source config found at {{ linux_setup_nvim_source }}"
+
+- name: Test nvim role
+  ansible.builtin.include_role:
+    name: nvim
+
+- name: Verify nvim - target path is defined
+  ansible.builtin.assert:
+    that:
+      - linux_setup_nvim_target is defined
+      - linux_setup_nvim_target | length > 0
+    fail_msg: "Neovim target path not defined"
+    success_msg: "✓ Neovim target: {{ linux_setup_nvim_target }}"
+
+- name: Verify nvim - backup suffix is defined
+  ansible.builtin.assert:
+    that:
+      - linux_setup_nvim_backup_suffix is defined
+    fail_msg: "Backup suffix not defined"
+    success_msg: "✓ Backup suffix configured: {{ linux_setup_nvim_backup_suffix }}"

@@ -1,0 +1,46 @@
+linux_setup_distro_id_map:
+  ubuntu: ubuntu
+  debian: debian
+  pop: pop
+  'pop!_os': pop
+  linuxmint: linuxmint
+  'linux mint': linuxmint
+  fedora: fedora
+  rhel: rhel
+  centos: centos
+  rocky: rocky
+  alma: alma
+  opensuse: opensuse
+  opensuse-tumbleweed: opensuse-tumbleweed
+  'opensuse tumbleweed': opensuse-tumbleweed
+  'opensuse leap': opensuse-leap
+  suse: suse
+  arch: arch
+  manjaro: manjaro
+  endeavouros: endeavouros
+
+linux_setup_pkg_mgr_map:
+  ubuntu: apt
+  debian: apt
+  pop: apt
+  linuxmint: apt
+  fedora: dnf
+  rhel: dnf
+  centos: dnf
+  rocky: dnf
+  alma: dnf
+  opensuse: zypper
+  opensuse-tumbleweed: zypper
+  opensuse-leap: zypper
+  suse: zypper
+  arch: pacman
+  manjaro: pacman
+  endeavouros: pacman
+
+linux_setup_supported_package_managers:
+  - apt
+  - dnf
+  - zypper
+  - pacman
+
+linux_setup_force_distro: ""

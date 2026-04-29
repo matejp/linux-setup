@@ -1,0 +1,30 @@
+---
+- name: Set detected and forced distribution identifiers
+  ansible.builtin.set_fact:
+    linux_setup_detected_distro_raw: "{{ (ansible_facts.distribution | default('unknown') | lower) }}"
+    linux_setup_forced_distro_normalized: "{{ linux_setup_force_distro | default('', true) | lower }}"
+
+- name: Set normalized distribution identifier
+  ansible.builtin.set_fact:
+    linux_setup_distro_id: >-
+      {{ linux_setup_distro_id_map[linux_setup_forced_distro_normalized]
+      | default(linux_setup_distro_id_map[linux_setup_detected_distro_raw], true)
+      | default(linux_setup_forced_distro_normalized, true)
+      | default(linux_setup_detected_distro_raw, true) }}
+
+- name: Set package manager
+  ansible.builtin.set_fact:
+    linux_setup_package_manager: >-
+      {{ linux_setup_pkg_mgr_map[linux_setup_distro_id] |
+      default(ansible_facts.pkg_mgr, true) |
+      default(ansible_pkg_mgr, true) }}
+
+- name: Set distribution version details
+  ansible.builtin.set_fact:
+    linux_setup_ubuntu_version: "{{ ansible_facts.distribution_version | default('') }}"
+
+- name: Validate detected package manager
+  ansible.builtin.assert:
+    that:
+      - linux_setup_package_manager in linux_setup_supported_package_managers
+    fail_msg: "Unsupported package manager: {{ linux_setup_package_manager }}"
