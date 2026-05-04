@@ -19,6 +19,9 @@ linux_setup_base_packages:
     - trash-cli
     - lazygit
     - fish
+    - podman
+    - distrobox
+    - shellcheck
   dnf:
     - htop
     - git
@@ -35,6 +38,9 @@ linux_setup_base_packages:
     - tldr
     - lazygit
     - fish
+    - podman
+    - distrobox
+    - ShellCheck
   zypper:
     - htop
     - git
@@ -50,6 +56,9 @@ linux_setup_base_packages:
     - fzf
     - lazygit
     - fish
+    - podman
+    - distrobox
+    - ShellCheck
   pacman:
     - htop
     - git
@@ -70,3 +79,6 @@ linux_setup_base_packages:
     - trash-cli
     - lazygit
     - fish
+    - podman
+    - distrobox
+    - shellcheck

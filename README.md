@@ -31,6 +31,7 @@ ansible-playbook playbooks/site.yml --tags all
 - **Fish Shell**: Install fish, set as default shell, and deploy basic config
 - **Bash Configuration**: Best-practice `~/.bashrc` and `~/.bash_profile` with SSH agent, aliases, and git-aware prompt
 - **Smart Package Filtering**: Version-aware package filtering (e.g. lazygit skipped on Ubuntu < 26.04)
+- **Container Tools**: Podman and Distrobox for containerized environments
 - **Fonts**: JetBrains Mono Nerd Font
 
 ## Supported Distributions
@@ -114,6 +115,30 @@ ansible-playbook playbooks/site.yml --tags all --check
 ansible-playbook playbooks/site.yml --tags all -vvv
 ```
 
+### Create Devbox (Containerized Dev Environment)
+
+Create an isolated development container with everything pre-installed:
+
+```bash
+# Ubuntu 24.04 devbox
+./scripts/create-devbox.sh ubuntu 24.04 ~/devbox-ubuntu
+
+# Fedora 42 devbox with custom prefix
+./scripts/create-devbox.sh fedora 42 ~/devbox-fedora --prefix work
+
+# Arch Linux devbox
+./scripts/create-devbox.sh arch latest ~/devbox-arch --prefix test1
+```
+
+Supported distributions:
+- **Ubuntu**: 22.04, 24.04, latest
+- **Debian**: 12, testing, unstable
+- **Fedora**: 41, 42, rawhide
+- **Arch**: latest
+- **openSUSE**: tumbleweed
+
+The script creates a distrobox container with an isolated home directory, installs ansible-core, and runs the full setup playbook automatically. Enter the container with `distrobox enter <name>`.
+
 ## What Gets Installed
 
 ### Base Packages (`--tags base`)
@@ -138,6 +163,10 @@ ansible-playbook playbooks/site.yml --tags all -vvv
 - trash-cli - Safe `rm` replacement
 - duf - Disk usage tool
 - fish - Modern shell
+
+**Container tools:**
+- podman - Rootless container engine
+- distrobox - Containerized development environments
 
 ### Development Tools (`--tags dev`)
 
@@ -276,6 +305,8 @@ linux-setup/
 │   ├── nvim/                    # Neovim config files
 │   ├── fish/                    # Fish config files
 │   └── bash/                    # Bash config files
+├── scripts/                     # Utility scripts
+│   └── create-devbox.sh         # Create distrobox dev environment
 └── docs/                        # Documentation
     ├── MANUAL.md                # Detailed manual
     └── FILEMAP.md               # File reference
@@ -454,6 +485,9 @@ ansible-playbook tests/test.yml
 
 # Detect distribution
 ansible-playbook playbooks/detect.yml
+
+# Create devbox (containerized dev environment)
+./scripts/create-devbox.sh ubuntu 24.04 ~/devbox-ubuntu
 ```
 
 For more details, see:

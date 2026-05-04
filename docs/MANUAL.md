@@ -336,6 +336,200 @@ When you add a new role:
     success_msg: "✓ Test passed"
 ```
 
+## Testing with Distrobox
+
+Distrobox provides isolated container environments for testing ansible roles across all supported distributions from a single host machine. Containers get their own isolated home directory, so deploying configs (fish, nvim, bash, fonts) won't affect the host.
+
+### Prerequisites
+
+Podman and Distrobox must be installed. They are included in the base packages:
+
+```bash
+ansible-playbook playbooks/site.yml --tags base
+```
+
+### How It Works
+
+- Each container gets an isolated home via `--home ~/.distrobox-home/<name>`
+- The host filesystem is accessible inside the container at `/run/host/`
+- The linux-setup repo is available at `/run/host/home/$USER/linux-setup/`
+- Destroying the container and its home directory leaves no trace on the host
+
+### Supported Container Images
+
+| Distribution | Image | Package Manager |
+|--------------|-------|-----------------|
+| Ubuntu 24.04 | `quay.io/toolbx/ubuntu-toolbox:24.04` | apt |
+| Debian 12 | `docker.io/library/debian:12` | apt |
+| Fedora 42 | `quay.io/fedora/fedora-toolbox:42` | dnf |
+| Arch Linux | `docker.io/library/archlinux:latest` | pacman |
+| openSUSE Tumbleweed | `registry.opensuse.org/opensuse/tumbleweed:latest` | zypper |
+
+### Quick Start (Automated)
+
+Use the included script to create a fully provisioned devbox in one command:
+
+```bash
+./scripts/create-devbox.sh ubuntu 24.04 ~/devbox-ubuntu
+```
+
+This creates the container, installs ansible-core, and runs the full playbook automatically. See `scripts/create-devbox.sh --help` for all options.
+
+### Step-by-Step Workflow
+
+**1. Create an isolated container:**
+
+```bash
+distrobox create --name test-ubuntu \
+  --image quay.io/toolbx/ubuntu-toolbox:24.04 \
+  --home ~/.distrobox-home/test-ubuntu \
+  --yes
+```
+
+**2. Enter the container:**
+
+```bash
+distrobox enter test-ubuntu
+```
+
+**3. Install ansible-core inside the container:**
+
+```bash
+# Ubuntu/Debian
+sudo apt update && sudo apt install -y ansible-core
+
+# Fedora
+sudo dnf install -y ansible-core
+
+# Arch
+sudo pacman -Sy --noconfirm ansible-core
+
+# openSUSE
+sudo zypper install -y ansible-core
+```
+
+**4. Navigate to the repository (accessible via /run/host/):**
+
+```bash
+cd /run/host/home/$USER/linux-setup/ansible
+```
+
+**5. Run the full ansible playbook:**
+
+```bash
+# Dry-run first
+ansible-playbook playbooks/site.yml --tags all --check
+
+# Full installation
+ansible-playbook playbooks/site.yml --tags all
+```
+
+**6. Verify the installation:**
+
+```bash
+# Check installed packages
+which fish nvim distrobox podman
+
+# Verify configs were deployed
+ls -la ~/.config/fish/
+ls -la ~/.config/nvim/
+ls -la ~/.bashrc
+```
+
+**7. Exit and clean up:**
+
+```bash
+exit  # Leave the container
+distrobox stop test-ubuntu
+distrobox rm test-ubuntu
+rm -rf ~/.distrobox-home/test-ubuntu
+```
+
+### Quick Commands for All Distributions
+
+**Ubuntu 24.04:**
+```bash
+distrobox create -n test-ubuntu -i quay.io/toolbx/ubuntu-toolbox:24.04 \
+  --home ~/.distrobox-home/test-ubuntu -Y
+distrobox enter test-ubuntu
+# Inside: sudo apt update && sudo apt install -y ansible-core
+# Inside: cd /run/host/home/$USER/linux-setup/ansible
+# Inside: ansible-playbook playbooks/site.yml --tags all
+```
+
+**Debian 12:**
+```bash
+distrobox create -n test-debian -i docker.io/library/debian:12 \
+  --home ~/.distrobox-home/test-debian -Y
+distrobox enter test-debian
+# Inside: sudo apt update && sudo apt install -y ansible-core
+# Inside: cd /run/host/home/$USER/linux-setup/ansible
+# Inside: ansible-playbook playbooks/site.yml --tags all
+```
+
+**Fedora 42:**
+```bash
+distrobox create -n test-fedora -i quay.io/fedora/fedora-toolbox:42 \
+  --home ~/.distrobox-home/test-fedora -Y
+distrobox enter test-fedora
+# Inside: sudo dnf install -y ansible-core
+# Inside: cd /run/host/home/$USER/linux-setup/ansible
+# Inside: ansible-playbook playbooks/site.yml --tags all
+```
+
+**Arch Linux:**
+```bash
+distrobox create -n test-arch -i docker.io/library/archlinux:latest \
+  --home ~/.distrobox-home/test-arch -Y
+distrobox enter test-arch
+# Inside: sudo pacman -Sy --noconfirm ansible-core
+# Inside: cd /run/host/home/$USER/linux-setup/ansible
+# Inside: ansible-playbook playbooks/site.yml --tags all
+```
+
+**openSUSE Tumbleweed:**
+```bash
+distrobox create -n test-opensuse -i registry.opensuse.org/opensuse/tumbleweed:latest \
+  --home ~/.distrobox-home/test-opensuse -Y
+distrobox enter test-opensuse
+# Inside: sudo zypper install -y ansible-core
+# Inside: cd /run/host/home/$USER/linux-setup/ansible
+# Inside: ansible-playbook playbooks/site.yml --tags all
+```
+
+### Testing Idempotency
+
+Run the playbook twice to verify idempotency:
+
+```bash
+# First run
+ansible-playbook playbooks/site.yml --tags all
+
+# Second run - should report no changes
+ansible-playbook playbooks/site.yml --tags all
+```
+
+### Testing Specific Components
+
+```bash
+# Test only base packages
+ansible-playbook playbooks/site.yml --tags base
+
+# Test only fish shell
+ansible-playbook playbooks/site.yml --tags fish
+
+# Test only neovim
+ansible-playbook playbooks/site.yml --tags nvim
+```
+
+### Tips
+
+- Always use `--home` to avoid littering the host's `$HOME` with container dotfiles
+- Run with `--check` first to preview changes without modifying anything
+- Use `-e linux_setup_force_distro=<distro>` to override detection if needed
+- Each container provides a fresh environment, ideal for testing clean installs
+- Container names and home paths can be anything - use descriptive names like `test-ubuntu-2404`
+
 ## Configuration Locations
 
 ### Deployed Locations

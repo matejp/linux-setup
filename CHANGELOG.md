@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- ShellCheck to base packages (all distributions)
+- Podman and Distrobox to base packages (all distributions)
+- Distrobox testing documentation in docs/MANUAL.md
+- `scripts/create-devbox.sh` - One-command devbox creation with full ansible setup
 - Comprehensive Ansible test suite (`ansible/tests/`)
   - `test.yml` - Main test runner
   - Individual role tests for distro_facts, packages, nvim, fish, bash, fonts, desktop
