@@ -22,6 +22,7 @@
 - name: Set distribution version details
   ansible.builtin.set_fact:
     linux_setup_ubuntu_version: "{{ ansible_facts.distribution_version | default('') }}"
+    linux_setup_fedora_version: "{{ ansible_facts.distribution_version | default('') }}"
 
 - name: Validate detected package manager
   ansible.builtin.assert:

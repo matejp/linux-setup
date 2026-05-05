@@ -30,6 +30,8 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 - **BREAKING**: Removed `setup.sh` wrapper - now use `ansible-playbook` directly
+- Drop `wget` on Fedora 44+ (conflicts with `wget2-wget`)
+- Enable COPR repo `dejan/lazygit` on Fedora for lazygit installation
 - **BREAKING**: Removed all legacy shell scripts (`lib/*.sh`)
 - **BREAKING**: Removed legacy test suite (`tests/*.sh`)
 - **BREAKING**: Removed all `linux_setup_install_*` variables - use tags exclusively

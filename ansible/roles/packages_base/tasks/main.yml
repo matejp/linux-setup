@@ -15,6 +15,27 @@
     - linux_setup_ubuntu_version is version('26.04', '<')
   tags: base
 
+- name: Drop wget on Fedora 44+ (conflicts with wget2)
+  ansible.builtin.set_fact:
+    linux_setup_base_packages_resolved: >-
+      {{ linux_setup_base_packages_resolved
+      | reject('equalto', 'wget')
+      | list }}
+  when:
+    - linux_setup_distro_id == 'fedora'
+    - linux_setup_fedora_version is version('44', '>=')
+  tags: base
+
+- name: Enable COPR repo for lazygit on Fedora
+  ansible.builtin.command:
+    cmd: dnf copr enable -y dejan/lazygit
+  become: true
+  when:
+    - linux_setup_distro_id == 'fedora'
+    - "'lazygit' in linux_setup_base_packages_resolved"
+    - not ansible_check_mode
+  tags: base
+
 - name: Install base packages
   ansible.builtin.package:
     name: "{{ linux_setup_base_packages_resolved }}"
