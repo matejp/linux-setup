@@ -21,12 +21,11 @@ linux_setup_dev_packages:
       - golang
     c:
       - gcc
-      - gcc-gdb
+      - gdb
       - lldb
     python:
       - python3
       - python3-pip
-      - python3-venv
   zypper:
     go:
       - go

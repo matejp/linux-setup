@@ -530,6 +530,30 @@ ansible-playbook playbooks/site.yml --tags nvim
 - Each container provides a fresh environment, ideal for testing clean installs
 - Container names and home paths can be anything - use descriptive names like `test-ubuntu-2404`
 
+### Integration Tests
+
+Use `scripts/test-distrobox.sh` to automatically test the full ansible setup across all supported distributions:
+
+```bash
+# Test all distros (auto-cleanup after each)
+./scripts/test-distrobox.sh
+
+# Test a single distro
+./scripts/test-distrobox.sh --distro fedora
+
+# Keep containers for debugging
+./scripts/test-distrobox.sh --keep
+```
+
+The script:
+1. Creates an isolated distrobox container for each distro
+2. Installs ansible-core inside the container
+3. Runs `ansible-playbook playbooks/site.yml --tags all`
+4. Verifies all packages, configs, and tools are installed
+5. Reports pass/fail for each check and cleans up
+
+Verified items include: git, curl, htop, jq, eza, bat, ripgrep, fzf, zoxide, btop, duf, fish, podman, distrobox, nvim, bash config, fish config, and fonts directory.
+
 ## Configuration Locations
 
 ### Deployed Locations

@@ -38,10 +38,27 @@
 
 - name: Install base packages
   ansible.builtin.package:
-    name: "{{ linux_setup_base_packages_resolved }}"
+    name: "{{ item }}"
     state: present
   become: true
+  loop: "{{ linux_setup_base_packages_resolved }}"
   when:
     - linux_setup_base_packages_resolved | length > 0
     - not ansible_check_mode
+  register: linux_setup_base_install_results
+  failed_when: false
+  tags: base
+
+- name: Report failed base package installations
+  ansible.builtin.fail:
+    msg: >-
+      Failed to install the following base packages:
+      {{ linux_setup_base_install_results.results
+         | selectattr('failed', 'true')
+         | map(attribute='item')
+         | list
+         | join(', ') }}
+  when:
+    - linux_setup_base_install_results.results is defined
+    - linux_setup_base_install_results.results | selectattr('failed', 'true') | list | length > 0
   tags: base

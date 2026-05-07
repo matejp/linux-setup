@@ -274,6 +274,23 @@ Tests verify:
 - Roles run successfully in check mode
 - Variables are properly defined
 
+### Integration Tests (Distrobox)
+
+Test the full ansible setup on real distributions using distrobox containers:
+
+```bash
+# Test all supported distros (auto-cleanup)
+./scripts/test-distrobox.sh
+
+# Test a specific distro
+./scripts/test-distrobox.sh --distro ubuntu
+
+# Keep containers after tests (for debugging)
+./scripts/test-distrobox.sh --keep
+```
+
+Each test creates an isolated container, runs the full ansible playbook, and verifies that all packages, configs, and tools are correctly installed.
+
 ## Directory Structure
 
 ```
@@ -306,7 +323,8 @@ linux-setup/
 │   ├── fish/                    # Fish config files
 │   └── bash/                    # Bash config files
 ├── scripts/                     # Utility scripts
-│   └── create-devbox.sh         # Create distrobox dev environment
+│   ├── create-devbox.sh         # Create distrobox dev environment
+│   └── test-distrobox.sh        # Integration tests via distrobox
 └── docs/                        # Documentation
     ├── MANUAL.md                # Detailed manual
     └── FILEMAP.md               # File reference
@@ -482,6 +500,9 @@ ansible-playbook playbooks/site.yml --tags all --check
 
 # Run tests
 ansible-playbook tests/test.yml
+
+# Run integration tests (distrobox)
+./scripts/test-distrobox.sh
 
 # Detect distribution
 ansible-playbook playbooks/detect.yml

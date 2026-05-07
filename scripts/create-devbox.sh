@@ -18,14 +18,14 @@ ok()    { echo -e "${GREEN}[OK]${NC}    $*"; }
 
 # Container image mapping: distro-version -> image
 declare -A IMAGES=(
-    ["ubuntu-22.04"]="quay.io/toolbx/ubuntu-toolbox:22.04"
     ["ubuntu-24.04"]="quay.io/toolbx/ubuntu-toolbox:24.04"
+    ["ubuntu-26.04"]="quay.io/toolbx/ubuntu-toolbox:24.04"
     ["ubuntu-latest"]="quay.io/toolbx/ubuntu-toolbox:latest"
     ["debian-12"]="docker.io/library/debian:12"
     ["debian-testing"]="docker.io/library/debian:testing"
     ["debian-unstable"]="docker.io/library/debian:unstable"
-    ["fedora-41"]="quay.io/fedora/fedora-toolbox:41"
-    ["fedora-42"]="quay.io/fedora/fedora-toolbox:42"
+    ["fedora-43"]="quay.io/fedora/fedora-toolbox:43"
+    ["fedora-44"]="quay.io/fedora/fedora-toolbox:44"
     ["fedora-rawhide"]="quay.io/fedora/fedora-toolbox:rawhide"
     ["arch-latest"]="docker.io/library/archlinux:latest"
     ["opensuse-tumbleweed"]="registry.opensuse.org/opensuse/tumbleweed:latest"

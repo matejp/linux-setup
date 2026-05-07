@@ -27,10 +27,27 @@
 
 - name: Install development packages
   ansible.builtin.package:
-    name: "{{ linux_setup_dev_packages_resolved | unique }}"
+    name: "{{ item }}"
     state: present
   become: true
+  loop: "{{ linux_setup_dev_packages_resolved | unique }}"
   when:
     - linux_setup_dev_packages_resolved | length > 0
     - not ansible_check_mode
+  register: linux_setup_dev_install_results
+  failed_when: false
+  tags: dev
+
+- name: Report failed dev package installations
+  ansible.builtin.fail:
+    msg: >-
+      Failed to install the following development packages:
+      {{ linux_setup_dev_install_results.results
+         | selectattr('failed', 'true')
+         | map(attribute='item')
+         | list
+         | join(', ') }}
+  when:
+    - linux_setup_dev_install_results.results is defined
+    - linux_setup_dev_install_results.results | selectattr('failed', 'true') | list | length > 0
   tags: dev

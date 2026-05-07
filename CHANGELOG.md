@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- `scripts/test-distrobox.sh` - Integration tests across all distros via distrobox
 - ShellCheck to base packages (all distributions)
 - Podman and Distrobox to base packages (all distributions)
 - Distrobox testing documentation in docs/MANUAL.md
